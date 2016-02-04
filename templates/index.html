@@ -16,38 +16,32 @@
           <ul class="nav nav-pills pull-right">
             <li role="presentation" class="active"><a href="#">Home</a></li>
             <li role="presentation"><a href="#">Sign In</a></li>
- 	    <li role="presentation"><a href="/showSignUp">Sign Up</a></li>
+ 	          <li role="presentation"><a href="/showSignUp">Sign Up</a></li>
           </ul>
         </nav>
         <h3 class="text-muted">Link Curation Interface</h3>
       </div>
 
       <div class="jumbotron">
-        <h1>Link Curation Interface</h1>
+        <h1>Question Appears Here</h1>
       </div>
 
       <div class="row marketing">
   
         <div class="col-lg-6">
 
+            <form ng-submit="submit()">
+                <button type="YES" class="btn btn-success btn-primary btn-md" >YES!</button>
+                <button type="FLAG" class="btn btn-danger btn-primary btn-md" >FLAG</button>
+                <button type="NOT SURE" class="btn btn-warning btn-primary btn-md" >NOT SURE</button>
+            </form>
+
+             <div class="form-group">
+              <br/><label for="comment">Comment:</label>
+              <textarea class="form-control" rows="5" id="comment"></textarea>
+            </div>
             <form ng-submit="addComment()">
-                <input type="text" ng-model="title"></input>
-                <button type="submit">Post</button>
-            </form>
-
-            <form ng-submit="yes()">
-                <span class = "glyphicon glyphicon-ok"></span>
-                <button type="YES">YES</button>
-            </form>
-
-            <form ng-submit="flag()">
-                <span class = "glyphicon glyphicon-flag"></span>
-                <button type="FLAG">FLAG</button>
-            </form>
-
-            <form ng-submit="notSure()">
-                <span class = "glyphicon glyphicon-minus"></span>
-                <button type="NOT SURE">NOT SURE</button>
+                <button type="submit">Post</button><br/><br/>
             </form>
         </div>
       </div>
