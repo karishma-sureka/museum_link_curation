@@ -8,7 +8,7 @@ class Artist(db.Document):
     
 class Status(db.EmbeddedDocument):
     # 1 - Not Started, 2 - In Progress, 3 - Completed, 4 - Disagreement
-    value = db.IntField(max_lenght=4,required=True)
+    value = db.IntField(max_length=4,required=True)
     description = db.StringField(max_length=255, required=True)
 
 class Tag(db.Document):
