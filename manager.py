@@ -9,8 +9,8 @@ manager = Manager(webapp)
 
 # Turn on debugger by default and reloader
 manager.add_command("runserver", Server(
-    use_debugger = True,
-    use_reloader = True,
+    use_debugger = False,
+    use_reloader = False,
     host = '127.0.0.1')
 )
 
