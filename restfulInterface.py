@@ -7,6 +7,25 @@ def clearData():
     Curator.objects = []
     Answer.objects = []
     Question.objects = []
+    
+    for a in Artist.objects:
+        a.delete()
+    
+    for s in Status.objects:
+        s.delete()
+        
+    for t in Tag.objects:
+        t.delete()
+    
+    for c in Curator.objects:
+        c.delete()
+        
+    for a in Answer.objects:
+        a.delete()
+        
+    for q in Question.objects:
+        q.delete()
+        
     print "Data Cleared"
      
 def populateData():
@@ -33,34 +52,27 @@ def populateData():
     t.save()
     t = Tag(tagname="randomtag3")
     t.save()
-        
+            
     #Curator (Name, Rating, Tag can be created before hand but questionsSeen seen would update dynamically)
-    
     # Sample curator
     c = Curator(uid="nilayvac@usc.edu",name="Nilay Chheda",rating=5)
-    #c.tags= Tag.objects(tagname__iexact='Randomtag3')
+    
+    # tags = Tag.objects(tagname__iexact='Randomtag3')
+    # print tags[0]
+    #c.tags = tags
     c.save()
     
     # Sampe Question
-    q = Question(qid=1,status=Status(value=1,description="Not Started"),timestamp=datetime.datetime.now)
-    #q.tags= Tag.objects(tagname__iexact='Randomtag3')
+    #q = Question(qid=1,status=Status(value=1,description="Not Started"),timestamp=datetime.datetime.now)
+    # q.tags= Tag.objects(tagname__iexact='Randomtag3')
     
     
-    #uris = [Artist.objects(person__contains="Edward Hopper")]
-    #if (len(uris) > 2):
-        #q.uri1 = uris[0]
-        #q.uri2 = uris[1]
+    # uris = [Artist.objects(person__contains="Edward Hopper")]
+    # if (len(uris) > 2):
+        # q.uri1 = uris[0]
+        # q.uri2 = uris[1]
     
-    
-    # uris = []
-    # for uri in Artist.objects:
-        # print "URI is : "+uri
-        # uris = uris + [uri]
-    
-    # q.uri1 = uris[0]
-    # q.uri2 = uris[1]
-    
-    #q.save()
+    # q.save()
 
 def get_question(uid):
     # User uid to get relevant questions
@@ -78,6 +90,8 @@ def get_question(uid):
     qs.uri1 = uri1
     qs.uri2 = uri2
     
+    # for q in Question.onjects:
+        # qs = q
     return qs
 
 def submit_answer(qid,ans):
