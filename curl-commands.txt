@@ -3,3 +3,5 @@ curl commands
 curl -i http://localhost:5000/user/nilay
 curl -i -H "Content-Type: application/json" -X POST -d '{"uid":"mit2nil"}' http://localhost:5000/get-q
 curl -i -H "Content-Type: application/json" -X POST -d '{"uid":"mit2nil","qid":"1","answer":"1","comment":"Its a matching entry"}' http://localhost:5000/submit-a
+curl http://localhost:5000/v1/question -d "data=Remember the milk" -X PUT
+curl http://localhost:5000/v1/answer -d "value=1" -d "qid=djaklsfhkffjwhknfskfj9438589yjk4nkj" -d "comment=Just another comment" -X PUT
