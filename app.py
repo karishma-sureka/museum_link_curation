@@ -9,8 +9,8 @@ dbClient = MongoClient('localhost', 27017)
 dbName = "TestDb1"
 
 # Uncommment below lines only once
-#cleanDatabase(dbClient,dbName)
-#createDatabase(dbClient,dbName)
+cleanDatabase(dbClient,dbName)
+createDatabase(dbClient,dbName)
 printDatabase(dbClient,dbName)
 
 # Global variables
@@ -72,4 +72,4 @@ def show_user_profile(username):
     return 'Welcome %s' % username
         
 if __name__ == "__main__":
-    webapp.run(debug=False)
+    webapp.run(debug=True)
