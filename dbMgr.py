@@ -1,5 +1,6 @@
 import datetime
-import random
+from random import randint
+import csv
 from pymongo import MongoClient
 
 confedenceLevel = 2
@@ -27,7 +28,8 @@ def cleanDatabase(dbC,dname):
 def createDatabase(dbC,dname):
     populateTags(dbC,dname)
     populateCurators(dbC,dname)
-    populateQuestions(dbC,dname)
+    #populateQuestions(dbC,dname)
+    populateQuestionsFromCSV(dbC,dname,'sample.csv')
     
     # Not required to be populated
     # Save on the fly as per the PUT request 
@@ -112,6 +114,24 @@ def populateQuestions(dbC,dname):
            "decision": [] #Should be updated in submit answer
          }
     q.insert_one(qe)
+    
+# Populate default set of questions from csv file
+def populateQuestionsFromCSV(dbC,dname,csvfname):
+    q = dbC[dname]["question"]
+    
+    with open(csvfname, 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',')
+        for row in spamreader:
+            if len(row) == 2:
+                qe = {"status":1,
+                      "lastSeen": datetime.datetime.utcnow(),
+                      "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag2"}),
+                              dbC[dname]["tag"].find_one({'tagname':"randomtag3"})],
+                       "uri1":row[0],
+                       "uri2":row[1],
+                       "decision": [] #Should be updated in submit answer
+                     }
+                q.insert_one(qe)
         
 # Retrieve set of questions from database based on tags, lastseen, unanswered vs in progress
 def getQuestion(dbC,dname,uid):

@@ -11,7 +11,7 @@ dbName = "TestDb1"
 # Uncommment below lines only once
 #cleanDatabase(dbClient,dbName)
 #createDatabase(dbClient,dbName)
-#printDatabase(dbClient,dbName)
+printDatabase(dbClient,dbName)
 
 # Global variables
 qid = 0
@@ -53,7 +53,7 @@ class questions(Resource):
 
 class homepage(Resource):
     def get(self):
-        return render_template('index.html')
+        return render_template('cards.html')
 
 api.add_resource(homepage, '/v1/')
 api.add_resource(answers, '/v1/answer')
@@ -65,11 +65,11 @@ def indexPage():
         # session['username'] = request.form['username']
         # print request.form['username']
         # return redirect(url_for('index'))
-    return render_template('index.html')
+    return render_template('cards.html')
    
 @webapp.route('/user/<username>')
 def show_user_profile(username):
     return 'Welcome %s' % username
         
 if __name__ == "__main__":
-    webapp.run(debug=True)
+    webapp.run(debug=False)
