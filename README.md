@@ -6,11 +6,11 @@
 pip install virtualenv
 virtualenv <env name>
 
-Unix/Mac OS : (for Windows use /scripts in place of /bin)
-<env name>/bin/activate 
-OR 
-cd <env name>/bin
-python activate_this.py
+Unix/Mac OS : 
+source <env name>/bin/activate
+
+Windows:
+<env name>\scripts\activate
 
 pip install flask
 pip install flask_restful
