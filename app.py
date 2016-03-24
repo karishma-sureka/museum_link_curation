@@ -9,8 +9,8 @@ dbClient = MongoClient('localhost', 27017)
 dbName = "TestDb1"
 
 # Uncommment below lines only once
-#cleanDatabase(dbClient,dbName)
-#createDatabase(dbClient,dbName)
+cleanDatabase(dbClient,dbName)
+createDatabase(dbClient,dbName)
 #printDatabase(dbClient,dbName)
 
 # Global variables
@@ -65,7 +65,7 @@ def indexPage():
         # session['username'] = request.form['username']
         # print request.form['username']
         # return redirect(url_for('index'))
-    return render_template('index.html')
+    return render_template('cards.html')
    
 @webapp.route('/user/<username>')
 def show_user_profile(username):
