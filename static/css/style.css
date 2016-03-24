@@ -1,27 +1,27 @@
-.buttondemoBasicUsage section {
-  background: #f7f7f7;
-  border-radius: 3px;
-  text-align: center;
-  margin: 1em;
-  position: relative !important;
-  padding-bottom: 10px; }
+.modal-footer {   border-top: 0px; }
 
-.buttondemoBasicUsage md-content {
-  margin-right: 7px; }
+#loginModal {
+    background : url('/static/images/museum_background.jpeg') no-repeat;
+    width: 100%;
+    max-width: 1920px;
+    background-size: 100%;
+}
 
-.buttondemoBasicUsage section .md-button {
-  margin-top: 16px;
-  margin-bottom: 16px; }
+#compareModal {
+    background : url('/static/images/painting_background.jpeg') no-repeat;
+    width: 100%;
+    max-width: 1920px;
+    background-size: 100%;
+}
 
-.buttondemoBasicUsage .label {
-  position: absolute;
-  bottom: 5px;
-  left: 7px;
-  font-size: 14px;
-  opacity: 0.54; }
+#submit-btn{
 
+}
 
-/*
-Copyright 2016 Google Inc. All Rights Reserved. 
-Use of this source code is governed by an MIT-style license that can be in foundin the LICENSE file at http://material.angularjs.org/license.
-*/
+#login-container{
+    margin-top: 25%;
+}
+
+#entity-container{
+    margin-top: 2%;
+}
