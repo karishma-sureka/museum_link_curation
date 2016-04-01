@@ -1,0 +1,17 @@
+{
+  "people" : [
+    {
+      "@id": "http://edan.si.edu/saam/id/person-institution/1681",
+      "@type": "http://schema.org/Person",
+      "schema:name": "Arnold Aaron Friedman",
+      "schema:deathDate": "1946",
+      "schema:birthDate": null,
+      "schema:additionalName": "Arnold Friedman",
+      "schema:birthPlace": {
+          "@type": "http://schema.org/Place",
+          "schema:name": "New-York, New-York, United-States"
+      }
+    },
+    {"schema:name": "Friedman, Arnold Aaron", "schema:additionalName": ["Friedman, Arnold Aaron", "Arnold Aaron Friedman"], "schema:birthPlace": {"schema:name": "New York", "@type": "http://schema.org/Place", "schema:geo": {"schema:longitude": "-74", "@type": "http://schema.org/GeoCoordinates", "schema:latitude": "40.7"}}, "schema:nationality": "American (North American)", "schema:deathDate": 1946, "schema:additionalType": "artists (visual artists)", "schema:birthDate": 1879, "schema:gender": "male", "schema:description": "American painter and lithographer, 1879-1946", "@id": "http://vocab.getty.edu/ulan/500028092", "@type": "http://schema.org/Person"}
+  ]
+}

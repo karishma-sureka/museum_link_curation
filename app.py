@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from flask_restful import Resource, Api
 from pymongo import MongoClient
 from dbMgr import *
+from pprint import pprint
 
 webapp = Flask(__name__)
 api = Api(webapp)
@@ -9,53 +10,118 @@ dbClient = MongoClient('localhost', 27017)
 dbName = "TestDb1"
 
 # Uncommment below lines only once
-cleanDatabase(dbClient,dbName)
+cleanDatabases(dbClient,dbName)
 createDatabase(dbClient,dbName)
-printDatabase(dbClient,dbName)
+cleanDatabase(dbClient,dbName,"answer")
+printDatabases(dbClient,dbName)
 
-# Global variables
-qid = 0
-aid = 0
-comment = "Default comment"
-
+# Handle RESTful API for submitting answer
 class answers(Resource):
     def put(self):
+        #print "Input received: ",request.json
         # Input validation
-        if not 'comment' in request.form:
+        if not 'comment' in request.json:
             a_comment = "No Comment Provided"
         else:
-            a_comment = request.form['comment']
+            a_comment = request.json['comment']
             
-        if not 'value' in request.form:
+        if not 'value' in request.json:
             return {'status': 400, 'message': 'value not provided with ther request'}
-        if not 'qid' in request.form:
+        if not 'qid' in request.json:
             return {'status': 400, 'message': 'qid not provided with ther request'}
-        a_value = request.form['value']
-        qid = request.form['qid']
+        a_value = request.json['value']
+        qid = request.json['qid']
         
         answer = {"value":a_value,
           "comment":a_comment,
-          "author":"dakldsjkaldjoi3uoiuje3kl2knkjn" # Random string, Get object ID of curator
+          "author":"nilayvac@usc.edu" # Random string, Get object ID of curator or from session oauth
          }
-        submitAnswer(dbClient,dbName,qid,answer)
-        return {'qid':qid,'author':answer['author'],'value':answer['value'],'comment':answer['comment']}
-    
-    def get(self):
-        return {'comment':comment,'qid':qid, 'aid':aid}
+        return {'Status':submitAnswer(dbClient,dbName,qid,answer)}
         
+# Handle RESTful API for getting/submitting questions
 class questions(Resource):
     def get(self):
-        question = getQuestion(dbClient,dbName,"nilayvac@usc.edu")
-        return {'qid': str(question['_id']),"uri1":question['uri1'],"uri2":question['uri2']}
+        print "Input received: ",request.json
+         
+        # Request coming from dedup
+        if not 'uid' in request.json:
+            
+            # dedup sending just one pair
+            if not 'bulk' in request.json:
+                if not 'uri1' in request.json:
+                    return {'status': 400, 'message': 'uri1 not provided with ther request'}
+                if not 'uri2' in request.json:
+                    return {'status': 400, 'message': 'uri2 not provided with ther request'}
+                if not 'dedup' in request.json:
+                    return {'status': 400, 'message': 'dedup not provided with ther request'}
+                
+                uri1 = request.json['uri1']
+                uri2 = request.json['uri2']
+                dedup = request.json['dedup']
+                
+                decision = addOrUpdateQuestion(dbClient,dbName,uri1,uri2,dedup)
+                printDatabase(dbClient,dbName,"question")
+                if decision != None:
+                    # Iterate over decision documts and send various comments and actual answer
+                    output = {"aValue":[],"aComment":[]}
+                    for aid in decision:
+                        a = dbClient[dbName]["answer"].find_one({'_id':ObjectId(aid)})
+                        output["aValue"] = output["aValue"]+[a["value"]]
+                        output["aComment"] = output["aComment"]+[a["comment"]]
+                    return output
+                else:
+                    return {'status':"Question does not have human curated information yet."}
+            
+            # Dedup sending multiple pairs
+            else:
+                bulkOutput = []
+                for i in range(0,request.json['bulk']):
+                    if not 'uri1' in request.json:
+                        return {'status': 400, 'message': 'uri1 not provided with ther request'}
+                    if not 'uri2' in request.json:
+                        return {'status': 400, 'message': 'uri2 not provided with ther request'}
+                    if not 'dedup' in request.json:
+                        return {'status': 400, 'message': 'dedup not provided with ther request'}
+                    
+                    uri1 = request.json['uri1']
+                    uri2 = request.json['uri2']
+                    dedup = request.json['dedup']
+                    
+                    decision = addOrUpdateQuestion(dbClient,dbName,uri1,uri2,dedup)
+                    if decision != None:
+                        # Iterate over decision documts and send various comments and actual answer
+                        output = {"aValue":[],"aComment":""}
+                        for aid in decision:
+                            a = dbClient[dbName]["answer"].find_one({'_id':ObjectId(aid)})
+                            output["aValue"] = output["aValue"]+[a["value"]]
+                            output["aComment"] = output["aComment"]+[a["aComment"]]
+                        bulkOutput = bulkOutput+[output]
+                    else:
+                        bulkOutput = bulkOutput+[{'status':'Question does not have human curated information yet.'}]
+                return bulkOutput
+        else:
+            uid = request.json['uid']
+            questions = getQuestionsForUID(dbClient,dbName,uid)
+            if questions != None:
+                output = []
+                for question in questions:                
+                    left = dbClient[dbName]["artists"].find_one({'@id':question['uri1']},projection={'_id':False})
+                    right = dbClient[dbName]["artists"].find_one({'@id':question['uri2']},projection={'_id':False})
+                    #print "\nLeft\n  ",left
+                    #print "\nRight\n ",right
+                    matches = getMatches(left, right)
+                    #print "\nmatches :\n"
+                    #pprint(matches)
+                    output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched']}]
+                return output
+            else:
+                return {'status':"Couldn't retrive questions"}
         
-        #from flask import jsonify # jsonify usage
-        #return jsonify({'answerSubmitted':a.value,'comment':a.comment,'Author':a.author.name}), 201
+# class homepage(Resource):
+    # def get(self):
+        # return render_template('cards.html')
 
-class homepage(Resource):
-    def get(self):
-        return render_template('cards.html')
-
-api.add_resource(homepage, '/v1/')
+# api.add_resource(homepage, '/v1/')
 api.add_resource(answers, '/v1/answer')
 api.add_resource(questions, '/v1/question')
 

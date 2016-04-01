@@ -1,4 +1,24 @@
-curl commands
+Curl Commands
 =============
-curl http://localhost:5000/v1/question -X GET
-curl http://localhost:5000/v1/answer -d "value=1" -d "qid=djaklsfhkffjwhknfskfj9438589yjk4nkj" -d "comment=Just another comment" -X PUT
+
+1. Send single question request from interface:
+-----------------------------------------------
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu"}'
+
+2. Send bulk question request from interface:
+---------------------------------------------
+
+
+3. Send single question request from dedup:
+-------------------------------------------
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uri1":"http://vocab.getty.edu/ulan/500028092","uri2":"http://edan.si.edu/saam/id/person-institution/1681","dedup":{"ver":"1.0","revision":"4","score":"0.45"}}'
+
+4. Send multiple question request from dedup:
+---------------------------------------------
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10,"payload":"[{"uri1":"http://vocab.getty.edu/ulan/500028092","uri2":"http://edan.si.edu/saam/id/person-institution/1681"},"dedup":"{}",...10 enties...]"}'
+
+5. Send submit answer request 
+-----------------------------------------------
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"56fdecf6f6bf2d187445d16b"}'
+
+
