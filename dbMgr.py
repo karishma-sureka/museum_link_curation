@@ -3,7 +3,7 @@ from random import randint
 import csv
 import json
 from pprint import pprint
-from pymongo import MongoClient, ReturnDocument
+from pymongo import MongoClient, ReturnDocument, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
 
 confedenceLevel = 2
@@ -204,14 +204,43 @@ def generateUniqueURI(uri1,uri2):
         return uri1+uri2
         
 # Retrieve set of questions from database based on tags, lastseen, unanswered vs in progress
-def getQuestionsForUID(dbC,dname,uid):
+def getQuestionsForUID(dbC,dname,uid,count):
     # Filter-1: Find tags associated with uid and retrieve set of questions
-    # Filter-2: Sort questions list based on status as InProgress
+    # Filter-2: Sort questions list based on status as InProgress or not started
     # Filter-3: Sort questions list whose status is NotStarted on maximum lastSeen 
-    # Filter-4: Remove questions that are already served to this user based on uid as author in decision
+    q1 = dbC[dname]["question"].find({"status":1}).sort([("lastSeen", DESCENDING)])
+    q2 = dbC[dname]["question"].find({"status":2}).sort([("status", DESCENDING)])
+    q = []
     
-    q = dbC[dname]["question"].find({"status":1},skip=randint(0,dbC[dname]["question"].count()-1),limit=5)
-    return q
+    # Filter-4: Remove questions that are already served to this user based on uid as author in decision
+    userOid = dbC[dname]["curator"].find_one({'uid':uid})['_id']
+    if userOid == None:
+        print "User not found"
+        return None
+    
+    print "Found uid's objectID ",userOid
+    
+    # Check every question whose status is in progress
+    for question in q2:
+        aids = question["decision"]
+        
+        answered = False
+        
+        # Check authors in all answers if current user has already answered the question
+        for aid in aids:
+            if dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})["author"] == ObjectId(userOid):
+                answered = True
+                break
+        
+        # If question is not answered previously add it to set of question to be sent.
+        if answered != True:
+            q = q + [question]
+    
+    for question in q1:
+        q = q + [question]
+        
+    #return = dbC[dname]["question"].find({"status":1},skip=randint(0,dbC[dname]["question"].count()-1),limit=count)
+    return q[:count]
         
 def getMatches(left,right):
     
@@ -243,12 +272,28 @@ def getMatches(left,right):
             unmatched["lValue"] = unmatched["lValue"]+[None]
             unmatched["rValue"] = unmatched["rValue"]+[right[field]]
     return {"ExactMatch":exactMatch,"Unmatched":unmatched}
+
+def getStats(dbC,dname,q):
+    noNo = 0
+    noYes = 0
+    noNotSure = 0
+    for aid in q['decision']:
+        a = dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})
+        if a != None:
+            if a["value"] == "1":
+                noYes = noYes + 1
+            elif a["value"] == "2":
+                noNo = noNo + 1
+            elif a["value"] == "3":
+                noNotSure = noNotSure + 1
+                
+    return {"Yes":noYes,"No":noNo,"Not Sure":noNotSure}
     
 #Answer
     #value, Integer value - 1 - Yes, 2 - No, 3 - Not Sure
     #comment, String optional 
     #author, String - uid of curator 
-def submitAnswer(dbC, dname, qid, answer):
+def submitAnswer(dbC, dname, qid, answer, uid):
     # Add answer to database
     a = dbC[dname]["answer"]
     aid = a.insert_one(answer).inserted_id
@@ -261,8 +306,20 @@ def submitAnswer(dbC, dname, qid, answer):
     if q == None:
         print "Submit answer failed for qid: ", qid
         return False
+    elif q['status'] == 3 or q['status'] == 4:
+        print "Question is not in progress or not started, qid: ", qid
+        return False
     else:
         #print "Found the question"
+        
+        #Check if user has already answered the question
+        aids = q["decision"]
+        # Check authors in all answers if current user has already answered the question
+        for aid in aids:
+            if dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})["author"] == uid:
+                print "User has already submitted answer to question ", qid
+                return False
+        
         # update descision with answer object id
         q['decision'] = q['decision']+[aid]
         #print "decision is: ", q['decision']
@@ -305,5 +362,9 @@ def submitAnswer(dbC, dname, qid, answer):
             {'$set': {'status':q['status'],'decision':q['decision']}},
             #projection={'_id':False,'status':True,},
             return_document=ReturnDocument.AFTER)
+        
+        
         print "\n Updated question document \n",q
+        
+        #printDatabase(dbC,dname,"answer")
         return True

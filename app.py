@@ -18,7 +18,7 @@ printDatabases(dbClient,dbName)
 # Handle RESTful API for submitting answer
 class answers(Resource):
     def put(self):
-        #print "Input received: ",request.json
+        print "Input received: ",request.json
         # Input validation
         if not 'comment' in request.json:
             a_comment = "No Comment Provided"
@@ -29,14 +29,17 @@ class answers(Resource):
             return {'status': 400, 'message': 'value not provided with ther request'}
         if not 'qid' in request.json:
             return {'status': 400, 'message': 'qid not provided with ther request'}
+        if not 'uid' in request.json:
+            return {'status': 400, 'message': 'uid not provided with ther request'}
         a_value = request.json['value']
         qid = request.json['qid']
+        uid = request.json['uid']
         
         answer = {"value":a_value,
           "comment":a_comment,
-          "author":"nilayvac@usc.edu" # Random string, Get object ID of curator or from session oauth
+          "author":"nilayvac@usc.edu"
          }
-        return {'Status':submitAnswer(dbClient,dbName,qid,answer)}
+        return {'Status':submitAnswer(dbClient,dbName,qid,answer,uid)}
         
 # Handle RESTful API for getting/submitting questions
 class questions(Resource):
@@ -99,20 +102,37 @@ class questions(Resource):
                     else:
                         bulkOutput = bulkOutput+[{'status':'Question does not have human curated information yet.'}]
                 return bulkOutput
+        # request coming from the interface
         else:
             uid = request.json['uid']
-            questions = getQuestionsForUID(dbClient,dbName,uid)
+            
+            if not 'bulk' in request.json:
+                count = 1
+            else:
+                count = request.json['bulk']
+            
+            if not 'stats' in request.json:
+                stats = False
+            else:
+                stats = request.json['stats']
+
+            questions = getQuestionsForUID(dbClient,dbName,uid,count)
             if questions != None:
                 output = []
-                for question in questions:                
+                for question in questions:
+                    print question
                     left = dbClient[dbName]["artists"].find_one({'@id':question['uri1']},projection={'_id':False})
                     right = dbClient[dbName]["artists"].find_one({'@id':question['uri2']},projection={'_id':False})
-                    #print "\nLeft\n  ",left
+                    #print "\nLeft\n  ",left 
                     #print "\nRight\n ",right
                     matches = getMatches(left, right)
                     #print "\nmatches :\n"
                     #pprint(matches)
-                    output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched']}]
+                    if stats == "True":
+                        s = getStats(dbClient,dbName,question)
+                        output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"stats":s}]
+                    else:
+                        output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched']}]
                 return output
             else:
                 return {'status':"Couldn't retrive questions"}
