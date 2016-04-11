@@ -11,35 +11,39 @@ contrastLevel = 2
 
 # Print the database just to check current data
 def printDatabases(dbC,dname):
-    print "\n Printing ",dname," if it exists"
+    print "\nPrinting ",dname," if it exists"
     for cname in dbC[dname].collection_names(include_system_collections=False):
-        print "\n Printing Collection ",cname
+        print "\nPrinting Collection ",cname
         for val in dbC[dname][cname].find():
             print " \n", val
+        print "\n"
 
 # Removes all the data from all tables of given database
 def cleanDatabases(dbC,dname):
-    print "\n Dropping database",dname,"if it exists\n"
+    print "\nDropping database",dname,"if it exists\n"
     for cname in dbC[dname].collection_names(include_system_collections=False):
-        print "\n Dropping collection (aka database)",cname,"\n"
+        print "\nDropping collection (aka database)",cname,"\n"
         for val in dbC[dname][cname].find():
             print "\nDropping: ",val
         dbC[dname][cname].delete_many({})
         dbC[dname][cname].drop()
+    print "\n"
 
 # Clean particular Document from a Collection        
 def printDatabase(dbC,dname,docname):
-    print "\n Printing Collection ",docname
+    print "\nPrinting Collection ",docname
     for val in dbC[dname][docname].find():
         print " \n", val
-            
+    print "\n"
+    
 # Clean particular Document from a Collection
 def cleanDatabase(dbC,dname,docname):
-    print "\n Dropping collection (aka database)",docname,"\n"
+    print "\nDropping collection (aka database)",docname,"\n"
     for val in dbC[dname][docname].find():
         print "\nDropping: ",val
     dbC[dname][docname].delete_many({})
     dbC[dname][docname].drop()            
+    print "\n"
             
 # Create database with default values for curation
 def createDatabase(dbC,dname):
@@ -52,13 +56,14 @@ def createDatabase(dbC,dname):
     # Save on the fly as per the PUT request 
     #saveAnswers(dbC,dname) 
     
-    loadDataFromJson(dbC,dname,'data\sample.json')
+    populateEntitiesFromJSON(dbC,dname,'data\sample.json')
 
 #Artists
     #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)
-def loadDataFromJson(dbC,dname,filename):
+def populateEntitiesFromJSON(dbC,dname,filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
+    # Change this range on actual server
     for i in range(0,2):
         #pprint(data["people"][i])
         dbC[dname]["artists"].insert_one(data["people"][i])
@@ -67,17 +72,15 @@ def loadDataFromJson(dbC,dname,filename):
     #tagname, string 
 # Populate database with default tags
 def populateTags(dbC,dname):
-    te = {"tagname":"randomtag1"}
+    te = {"tagname":"saam"}
     dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"randomtag2"}
+    te = {"tagname":"ulan"}
     dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"randomtag3"}
+    te = {"tagname":"viaf"}
     dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"randomtag4"}
+    te = {"tagname":"npg"}
     dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"randomtag5"}
-    dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"randomtag6"}
+    te = {"tagname":"autry"}
     dbC[dname]["tag"].insert_one(te)
     
 #Curator
@@ -91,14 +94,14 @@ def populateTags(dbC,dname):
 def populateCurators(dbC,dname):
     ce = {"uid":"nilayvac@usc.edu",
           "name":"Nilay Chheda",
-          "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag1"}),
-                  dbC[dname]["tag"].find_one({'tagname':"randomtag4"})],
+          "tags":[dbC[dname]["tag"].find_one({'tagname':"ulan"})['_id'],
+                  dbC[dname]["tag"].find_one({'tagname':"saam"})['_id'] ],
           "rating":5}
     dbC[dname]["curator"].insert_one(ce)
     ce = {"uid":"ksureka@usc.edu",
           "name":"Karishma Sureka",
-          "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag2"}),
-                  dbC[dname]["tag"].find_one({'tagname':"randomtag3"})],
+          "tags":[dbC[dname]["tag"].find_one({'tagname':"ulan"})['_id'],
+                  dbC[dname]["tag"].find_one({'tagname':"saam"})['_id'] ],
           "rating":5}
     dbC[dname]["curator"].insert_one(ce)
 
@@ -114,34 +117,43 @@ def addCurator(dbC, dname, ce):
     #uri1, for now, just a URI related to a specific artist
     #uri2, for now, just another URI related to same specific artist
     #decision, list of object IDs from Answer
-    #dedup, dict, data coming from dedup
+    #dedupe , dict, data coming from dedupe 
     
 # Populate default set of questions
 def populateQuestions(dbC,dname):    
     qe = {"status":1,
           "uniqueURI":generateUniqueURI("http://vocab.getty.edu/ulan/500028092","http://edan.si.edu/saam/id/person-institution/1681"),
           "lastSeen": datetime.datetime.utcnow(),
-          "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag1"}),
-                  dbC[dname]["tag"].find_one({'tagname':"randomtag4"})],
+          "tags":[dbC[dname]["tag"].find_one({'tagname':"ulan"})['_id'],
+                  dbC[dname]["tag"].find_one({'tagname':"saam"})['_id'] ],
            "uri1":"http://vocab.getty.edu/ulan/500028092",
            "uri2":"http://edan.si.edu/saam/id/person-institution/1681",
            "decision": [], #Should be updated in submit answer
-           "dedup": {}
+           "dedupe ": {}
          }
     dbC[dname]["question"].insert_one(qe)
     
     qe = {"status":1,
           "uniqueURI":generateUniqueURI("http://vocab.getty.edu/ulan/500020062","http://edan.si.edu/saam/id/person-institution/26558"),
           "lastSeen": datetime.datetime.utcnow(),
-          "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag2"}),
-                  dbC[dname]["tag"].find_one({'tagname':"randomtag3"})],
+          "tags":[dbC[dname]["tag"].find_one({'tagname':"ulan"})['_id'],
+                  dbC[dname]["tag"].find_one({'tagname':"saam"})['_id'] ],
            "uri1":"http://vocab.getty.edu/ulan/500020062",
            "uri2":"http://edan.si.edu/saam/id/person-institution/26558",
            "decision": [], #Should be updated in submit answer
-           "dedup": {}
+           "dedupe ": {}
          }
     dbC[dname]["question"].insert_one(qe)
-    
+
+#Find tag from the URL
+def findTag(uri):
+    tag = "Default Tag"
+    if "saam" in uri:
+        tag = "saam"
+    elif "ulan" in uri:
+        tag = "ulan"
+    return tag
+ 
 # Populate default set of questions from csv file
 def populateQuestionsFromCSV(dbC,dname,csvfname):
     with open(csvfname, 'rb') as csvfile:
@@ -151,33 +163,34 @@ def populateQuestionsFromCSV(dbC,dname,csvfname):
                 qe = {"status":1,
                       "uniqueURI":generateUniqueURI(row[0],row[1]),
                       "lastSeen": datetime.datetime.utcnow(),
-                      "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag2"}),
-                              dbC[dname]["tag"].find_one({'tagname':"randomtag3"})],
+                      "tags":[dbC[dname]["tag"].find_one({'tagname':findTag(row[0])})['_id'],
+                              dbC[dname]["tag"].find_one({'tagname':findTag(row[1])})['_id'] ],
                        "uri1":row[0],
                        "uri2":row[1],
                        "decision": [], #Should be updated in submit answer
-                       "dedup": {}
+                       "dedupe ": {}
                      }
                 dbC[dname]["question"].insert_one(qe)
         
-def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedup):
+def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedupe):
     uuri = generateUniqueURI(uri1,uri2)
     q = dbC[dname]["question"].find_one({'uniqueURI':uuri})
     
-    # If uuri exists, ignore dedup as this request is coming second time, just return decision
+    # If uuri exists, ignore dedupe as this request is coming second time, just return decision
     if q != None:
+        print "Question instance already exists\n"
         return q["decision"]
-    # Create new question and add dedup information as well
+    # Create new question and add dedupe information as well
     else:
         qe = {"status":1,
               "uniqueURI":uuri,
               "lastSeen": datetime.datetime.utcnow(),
-              "tags":[dbC[dname]["tag"].find_one({'tagname':"randomtag2"}),
-                      dbC[dname]["tag"].find_one({'tagname':"randomtag3"})],
+              "tags":[dbC[dname]["tag"].find_one({'tagname':findTag(uri1)})['_id'],
+                      dbC[dname]["tag"].find_one({'tagname':findTag(uri2)})['_id'] ],
                "uri1":uri1,
                "uri2":uri2,
                "decision": [], #Should be updated in submit answer
-               "dedup": dedup
+               "dedupe ": dedupe 
              }
         dbC[dname]["question"].insert_one(qe)
         return None
@@ -218,7 +231,7 @@ def getQuestionsForUID(dbC,dname,uid,count):
         print "User not found"
         return None
     
-    print "Found uid's objectID ",userOid
+    #print "Found uid's objectID ",userOid
     
     # Check every question whose status is in progress
     for question in q2:
@@ -307,7 +320,7 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         print "Submit answer failed for qid: ", qid
         return False
     elif q['status'] == 3 or q['status'] == 4:
-        print "Question is not in progress or not started, qid: ", qid
+        print "Question has already been answered by prescribed number of curators, qid: ", qid
         return False
     else:
         #print "Found the question"

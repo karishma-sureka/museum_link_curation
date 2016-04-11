@@ -8,17 +8,21 @@ curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json
 
 2. Send bulk question request from interface:
 ---------------------------------------------
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":"10"}'
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":"10","stats":"True"}'
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10}'
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10,"stats":"True"}'
 
-3. Send single question request from dedup:
+3. Send single question request from dedupe :
 -------------------------------------------
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uri1":"http://vocab.getty.edu/ulan/500028092","uri2":"http://edan.si.edu/saam/id/person-institution/1681","dedup":{"ver":"1.0","revision":"4","score":"0.45"}}'
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uri1":"http://vocab.getty.edu/ulan/50001234","uri2":"http://edan.si.edu/saam/id/person-institution/1234","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}}'
 
-4. Send multiple question request from dedup:
+4. Send multiple question request from dedupe :
 ---------------------------------------------
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10,"payload":"[{"uri1":"http://vocab.getty.edu/ulan/500028092","uri2":"http://edan.si.edu/saam/id/person-institution/1681"},"dedup":"{}",...10 enties...]"}'
+-- Format -- 
+curl -X PUT http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":<n>,"payload":[{},{},... n entries]}'
+
+-- Example -- 
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":2,"payload":[{"uri1":"http://vocab.getty.edu/ulan/50002345","uri2":"http://edan.si.edu/saam/id/person-institution/2345","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}},{"uri1":"http://vocab.getty.edu/ulan/50003456","uri2":"http://edan.si.edu/saam/id/person-institution/3456","dedupe":{"ver":"1.0","revision":"4","score":"0.85"}}]}'
 
 5. Send submit answer request 
 -----------------------------------------------
-curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","value":"1","comment":"Just another comment","qid":"56fdecf6f6bf2d187445d16b"}'
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","value":"1","comment":"Just another comment","qid":"570bdbbef6bf2d2ad05d2379"}'
