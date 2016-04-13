@@ -1,5 +1,5 @@
 HTML  CSS   Result
-Edit on 
+Edit on
 @import url('http://fonts.googleapis.com/css?family=Raleway:400,200');
 body {   font-family: Helvetica, san-serif;
   background: -webkit-linear-gradient(90deg, #00aaee 10%, #DD2476 90%); /* Chrome 10+, Saf5.1+ */
@@ -18,10 +18,10 @@ body {   font-family: Helvetica, san-serif;
     box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.3);
   -webkit-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.3);
   -moz-box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.3);
-    height: 250px;
+    height: 200px;
     left: 0;
-    margin-right: auto;
-    margin-left: auto;
+    float:right;
+    margin-right: 1.5%;
     margin-bottom: 10px;
     overflow: hidden;
     position: relative;
@@ -33,16 +33,16 @@ body {   font-family: Helvetica, san-serif;
     display: none;
 }
 .card:hover {
-    height: 600px;
+    height: 715px;
     width: 800px;
-    overflow: scroll;
+    display:table;
 }
 .card:hover .questionarea{
     display: block;
 }
 .card:hover .cta-container {
     display: inline;
-    margin-top: 380px;
+    margin-top: 220px;
 }
 .card:hover .card_circle {
     background-size: cover;
@@ -67,18 +67,6 @@ body {   font-family: Helvetica, san-serif;
     position: absolute;
     width: 950px;
 }
-.card_circle1{
-    background: url('https://usercontent1.hubstatic.com/2955654.jpg') no-repeat center bottom;
-}
-.card_circle2{
-    background: url('http://uploads2.wikiart.org/images/vincent-van-gogh/the-starry-night-1889(1).jpg') no-repeat center bottom;
-}
-.card_circle3{
-    background: url('http://www.rembrandthuis.nl/media/images/nachtwachtrh.jpeg') no-repeat center bottom;
-}
-.card_circle4{
-    background: url('http://cdn.pcwallart.com/images/sistine-chapel-ceiling-wallpaper-2.jpg') no-repeat center bottom;
-}
 h2 {
     color: #3487f7;
     font-family: 'Raleway', sans-serif;
@@ -102,7 +90,7 @@ p {
 }
 .cta-container {
     display: none;
-    margin-top: 320px;
+    margin-top: 300px;
     position: absolute;
     text-align: center;
     width: 100%;
@@ -157,3 +145,43 @@ p {
     color: #fff;
     text-decoration: none;
 }
+
+* {
+  -webkit-border-radius: 0 !important;
+     -moz-border-radius: 0 !important;
+          border-radius: 0 !important;
+}
+
+.progress-bar-grey{
+    background-color: darkgrey;
+    opacity: 0.5; /* opacity [0-1] */
+    -moz-opacity: 0.5; /* opacity [0-1] */
+    -webkit-opacity: 0.5; /* opacity [0-1] */
+}
+
+.progress{
+    opacity: 0.8; /* opacity [0-1] */
+    -moz-opacity: 0.8; /* opacity [0-1] */
+    -webkit-opacity: 0.8; /* opacity [0-1] */
+}
+
+.filter-section{
+    float:left;
+    position:absolute;
+}
+
+.search-bar{
+    margin-left: 1.5%;
+    width:80%;
+    margin-top: 2%;
+}
+.filter-btn{
+    margin-top:6%;
+    margin-left:2.6%;
+}
+
+.museum-btn{
+    margin-top: 0.6%;
+    margin-left: 2.6%;
+}
+

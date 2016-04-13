@@ -125,14 +125,18 @@ class questions(Resource):
 api.add_resource(answers, '/v1/answer')
 api.add_resource(questions, '/v1/question')
 
-@webapp.route('/')
-def indexPage():
+@webapp.route('/curation')
+def submit():
     # if request.method == 'POST':
         # session['username'] = request.form['username']
         # print request.form['username']
         # return redirect(url_for('index'))
     return render_template('cards.html')
-   
+
+@webapp.route('/')
+def show_login_profile():
+    return render_template('login.html')
+
 @webapp.route('/user/<username>')
 def show_user_profile(username):
     return 'Welcome %s' % username

@@ -2,6 +2,7 @@ import datetime
 from random import randint
 import csv
 import json
+import os
 from pprint import pprint
 from pymongo import MongoClient, ReturnDocument
 from bson.objectid import ObjectId
@@ -46,13 +47,13 @@ def createDatabase(dbC,dname):
     populateTags(dbC,dname)
     populateCurators(dbC,dname)
     #populateQuestions(dbC,dname)
-    populateQuestionsFromCSV(dbC,dname,'data\sample.csv')
+    populateQuestionsFromCSV(dbC,dname, os.path.join('data', 'sample.csv'))
     
     # Not required to be populated
     # Save on the fly as per the PUT request 
     #saveAnswers(dbC,dname) 
     
-    loadDataFromJson(dbC,dname,'data\sample.json')
+    loadDataFromJson(dbC,dname, os.path.join('data', 'sample.json'))
 
 #Artists
     #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)

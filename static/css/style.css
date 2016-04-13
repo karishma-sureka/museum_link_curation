@@ -1,7 +1,7 @@
 .modal-footer {   border-top: 0px; }
 
 #loginModal {
-    background : url('/static/images/museum_background.jpeg') no-repeat;
+    background : url('static/images/museum_background.jpeg') no-repeat;
     width: 100%;
     max-width: 1920px;
     background-size: 100%;
