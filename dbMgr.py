@@ -57,7 +57,7 @@ def createDatabase(dbC,dname):
     # Save on the fly as per the PUT request 
     #saveAnswers(dbC,dname) 
 
- populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'sample.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'sample.json'))
 
 #Artists
     #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)
