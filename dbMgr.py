@@ -308,11 +308,6 @@ def getStats(dbC,dname,q):
     #comment, String optional 
     #author, String - uid of curator 
 def submitAnswer(dbC, dname, qid, answer, uid):
-    # Add answer to database
-    a = dbC[dname]["answer"]
-    aid = a.insert_one(answer).inserted_id
-    #print "Inserted new answer with aid: ", aid
-    #print "answers ",a
     
     # from qid retrieve question 
     q = dbC[dname]["question"].find_one({'_id':ObjectId(qid)})
@@ -327,14 +322,19 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         #print "Found the question"
         
         #Check if user has already answered the question
-        aids = q["decision"]
         # Check authors in all answers if current user has already answered the question
-        for aid in aids:
+        for aid in q["decision"]:
             if dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})["author"] == uid:
                 print "User has already submitted answer to question ", qid
                 return False
         
-        # update descision with answer object id
+        # Add answer to database
+        a = dbC[dname]["answer"]
+        aid = a.insert_one(answer).inserted_id
+        #print "Inserted new answer with aid: ", aid
+        #print "answers ",a
+    
+        # update decision with answer object id
         q['decision'] = q['decision']+[aid]
         #print "decision is: ", q['decision']
         

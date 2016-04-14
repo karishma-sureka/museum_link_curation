@@ -1,28 +1,50 @@
 Curl Commands
 =============
 
-1. Send single question request from interface:
------------------------------------------------
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu"}'
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","stats":"True"}'
+1. Send single question request from interface (GET request):
+-------------------------------------------------------------
+curl -X GET http://localhost:5000/v1/question -u nilayvac@usc.edu:linkCuration
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"stats":"True"}' -u nilayvac@usc.edu:linkCuration
 
-2. Send bulk question request from interface:
----------------------------------------------
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10}'
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10,"stats":"True"}'
+2. Send bulk question request from interface (GET request):
+-----------------------------------------------------------
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10}' -u nilayvac@usc.edu:linkCuration
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10,"stats":"True"}' -u nilayvac@usc.edu:linkCuration
 
-3. Send single question request from dedupe :
--------------------------------------------
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uri1":"http://vocab.getty.edu/ulan/50001234","uri2":"http://edan.si.edu/saam/id/person-institution/1234","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}}'
+3. Send single question request from dedupe (POST request):
+----------------------------------------------------------
+curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uri1":"http://vocab.getty.edu/ulan/50001234","uri2":"http://edan.si.edu/saam/id/person-institution/1234","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}}'
 
-4. Send multiple question request from dedupe :
----------------------------------------------
+4. Send multiple question request from dedupe (POST request):
+-------------------------------------------------------------
 -- Format -- 
-curl -X PUT http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":<n>,"payload":[{},{},... n entries]}'
+curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":<n>,"payload":[{},{},... n entries]}'
 
 -- Example -- 
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":2,"payload":[{"uri1":"http://vocab.getty.edu/ulan/50002345","uri2":"http://edan.si.edu/saam/id/person-institution/2345","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}},{"uri1":"http://vocab.getty.edu/ulan/50003456","uri2":"http://edan.si.edu/saam/id/person-institution/3456","dedupe":{"ver":"1.0","revision":"4","score":"0.85"}}]}'
+curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":2,"payload":[{"uri1":"http://vocab.getty.edu/ulan/50002345","uri2":"http://edan.si.edu/saam/id/person-institution/2345","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}},{"uri1":"http://vocab.getty.edu/ulan/50003456","uri2":"http://edan.si.edu/saam/id/person-institution/3456","dedupe":{"ver":"1.0","revision":"4","score":"0.85"}}]}'
 
-5. Send submit answer request 
------------------------------------------------
-curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","value":"1","comment":"Just another comment","qid":"570bdbbef6bf2d2ad05d2379"}'
+5. Send submit answer request (PUT request)
+-------------------------------------------
+Using Token
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eeba7f6bf2d1e58a88471"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTQ4MSwiaWF0IjoxNDYwNTk1ODgxfQ.eyJpZCI6MX0.PyLZSP7q0iWh-n1yazz8p23kO3cUJtmQbGucjvTYtOg:x
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eeba7f6bf2d1e58a88471"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x
+
+Using credentials
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u nilayvac@usc.edu:linkCuration
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u ksureka@usc.edu:linkCuration
+
+6. Register User (POST request)
+-------------------------------
+curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"nilayvac@usc.edu","password":"linkCuration"}'
+curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"ksureka@usc.edu","password":"linkCuration"}'
+
+7. Login User (for duration) and get time bound API token (GET request)
+------------------------------------------------------------------
+curl -u nilayvac@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json"
+curl -u nilayvac@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}'
+curl -u ksureka@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json"
+curl -u ksureka@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}'
+
+8. Logout User (Automatically logged out based on the token)
+------------------------------------------------------------
+TBD
