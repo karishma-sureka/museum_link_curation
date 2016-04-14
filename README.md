@@ -11,17 +11,19 @@ source <env name>/bin/activate
 
 Windows:
 <env name>\scripts\activate
-
+```
+2. Install dependent python packages
+```
 pip install flask
 pip install flask_restful
-```
-
-2. Install mongodb and run the mongo server using mongod
-
-3. Install pymongo
-```
+pip install flask_sqlalchemy
 pip install pymongo
+pip install flask_httpauth
+pip install passlib
+pip install itsdangerous 
 ```
+
+3. Install mongodb and run the mongo server using mongod
 
 4. Run the application
 ```
