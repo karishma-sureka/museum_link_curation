@@ -70,6 +70,7 @@ def populateEntitiesFromJSON(dbC,dname,filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
     # Change this range on actual server
+    #for i in range(0,len(data["people"]):
     for i in range(0,5):
         #pprint(data["people"][i])
         dbC[dname]["artists"].insert_one(data["people"][i])
