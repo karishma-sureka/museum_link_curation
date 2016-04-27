@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, g, url_for, jsonify
+from flask import Flask, render_template, request, g, url_for, jsonify, redirect
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
@@ -9,10 +9,10 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
 from pymongo import MongoClient
 from pprint import pprint
 from dbMgr import *
-#from usrMgr import *
 
 webapp = Flask(__name__)
 api = Api(webapp)
+
 dbClient = MongoClient('localhost', 27017)
 dbName = "TestDb1"
 usrdb = SQLAlchemy(webapp)
@@ -37,6 +37,18 @@ def submit():
 def show_login_profile():
     return render_template('login.html')
 
+@webapp.route('/answer')
+def redirectAnswer():
+    return redirect(url_for("answer"))
+    
+@webapp.route('/question')
+def redirectQuestion():
+    return redirect(url_for("question"))
+
+@webapp.route('/user')
+def redirectUser():
+    return redirect(url_for("user"))
+
 # Handle RESTful API for submitting answer
 class ansMgr(Resource):
     
@@ -54,16 +66,20 @@ class ansMgr(Resource):
             a_comment = request.json['comment']
             
         if not 'value' in request.json:
-            return {'status': 400, 'message': 'value not provided with ther request'}
+            return {'message': 'value not provided with ther request'}, 400
         if not 'qid' in request.json:
-            return {'status': 400, 'message': 'qid not provided with ther request'}
+            return {'message': 'qid not provided with ther request'}, 400
         
         a_value = request.json['value']
         qid = request.json['qid']
         uid = g.user.username
         answer = {"value":a_value,"comment":a_comment,"author":uid}
         
-        return {'Status':submitAnswer(dbClient,dbName,qid,answer,uid)}
+        rsp = submitAnswer(dbClient,dbName,qid,answer,uid)
+        if rsp["status"] == False:
+            return {'message':rsp["message"]},400
+        else:
+            return {'message':rsp["message"]}
         
 # Handle RESTful API for getting/submitting questions
 class questMgr(Resource):
@@ -73,7 +89,7 @@ class questMgr(Resource):
         print "Input received: ",request.json
         
         if request.json == None:
-            return {'status': 400, 'message': 'No input provided'}
+            return {'message': 'No input provided'}, 400
         else:
             return createQuestionsFromPairs(request.json)
     
@@ -93,12 +109,12 @@ class userMgr(Resource):
         print "Input received: ",request.json
         
         if request.json == None:
-            return {'status': 400, 'message': 'No input provided'}
+            return {'message': 'No input provided'}, 400
         
         if not 'username' in request.json:
-            return {'status': 400, 'message': 'username not provided with ther request'}
+            return {'message': 'username not provided with ther request'}, 400
         if not 'password' in request.json:
-            return {'status': 400, 'message': 'password not provided with ther request'}
+            return {'message': 'password not provided with ther request'}, 400
             
         return register_user(request.json['username'],request.json['password'])
 
@@ -109,11 +125,6 @@ class userMgr(Resource):
         else:
             return login_user(request.json['duration'])
         
-# Rest API endpoints
-api.add_resource(ansMgr, '/v1/answer')
-api.add_resource(questMgr, '/v1/question')
-api.add_resource(userMgr, '/v1/user')
-
 # User Class definitio for SQLAlchemy object
 class User(usrdb.Model):
     __tablename__ = 'users'
@@ -148,6 +159,11 @@ class User(usrdb.Model):
         user = User.query.get(data['id'])
         return user
 
+# Rest API endpoints (V1)
+api.add_resource(ansMgr, '/v1/answer',endpoint='answer')
+api.add_resource(questMgr, '/v1/question',endpoint='question')
+api.add_resource(userMgr, '/v1/user',endpoint='user')
+        
 @auth.verify_password
 def verify_password(username_or_token, password):
     # first try to authenticate by token
@@ -164,7 +180,7 @@ def verify_password(username_or_token, password):
 def get_user(id):
     user = User.query.get(id)
     if not user:
-        return {'status': 400, 'message': 'User does not exist'}
+        return {'message': 'User does not exist'}, 400
     return jsonify({'username': user.username})
 
 @webapp.route('/v1/token')
@@ -180,7 +196,7 @@ def get_resource():
 
 def register_user(username,password):
     if User.query.filter_by(username=username).first() is not None:
-        return {'status': 400, 'message': 'User alrady exists'}
+        return {'message': 'User alrady exists'}, 400
                 
     user = User(username=username)
     user.hash_password(password)
@@ -190,7 +206,9 @@ def register_user(username,password):
     print "Added user with username:",user.username," and id:",user.id
     location = url_for('get_user', id=user.id, _external=True)
     
-    return {'status':201,'username':user.username,'Location': url_for('get_user', id=user.id, _external=True)}
+    # Link with curator creation in mongodb
+    #return {'status':201,'username':user.username,'Location': url_for('get_user', id=user.id, _external=True)}
+    return {'username':user.username,'Location': url_for('get_user', id=user.id, _external=True)}
 
 @auth.login_required
 def login_user(duration):
@@ -201,11 +219,11 @@ def createQuestionsFromPairs(jsonData):
     # dedupe sending just one pair
     if not 'bulk' in jsonData:
         if not 'uri1' in jsonData:
-            return {'status': 400, 'message': 'uri1 not provided with the request'}
+            return {'message': 'uri1 not provided with the request'}, 400
         if not 'uri2' in jsonData:
-            return {'status': 400, 'message': 'uri2 not provided with the request'}
+            return {'message': 'uri2 not provided with the request'}, 400
         if not 'dedupe' in jsonData:
-            return {'status': 400, 'message': 'dedupe not provided with the request'}
+            return {'message': 'dedupe not provided with the request'}, 400
         
         uri1 = jsonData['uri1']
         uri2 = jsonData['uri2']
@@ -231,11 +249,11 @@ def createQuestionsFromPairs(jsonData):
             payload = jsonData['payload'][i]
             #print "\n Processing payload: ",payload
             if not 'uri1' in payload:
-                return {'status': 400, 'message': 'uri1 not provided with ther request'}
+                return {'message': 'uri1 not provided with ther request'}, 400
             if not 'uri2' in payload:
-                return {'status': 400, 'message': 'uri2 not provided with ther request'}
+                return {'message': 'uri2 not provided with ther request'}, 400
             if not 'dedupe' in payload:
-                return {'status': 400, 'message': 'dedupe not provided with ther request'}
+                return {'message': 'dedupe not provided with ther request'}, 400
             
             uri1 = payload['uri1']
             uri2 = payload['uri2']
@@ -277,22 +295,40 @@ def getQuestionsForUser(jsonData):
     if questions != None:
         output = []
         for question in questions:
-            #print question
-            left = dbClient[dbName]["artists"].find_one({'@id':question['uri1']},projection={'_id':False})
-            right = dbClient[dbName]["artists"].find_one({'@id':question['uri2']},projection={'_id':False})
+            if checkURIOrdering(question['uri1'],question['uri2']):
+                left = dbClient[dbName]["artists"].find_one({'@id':question['uri1']},projection={'_id':False})
+                right = dbClient[dbName]["artists"].find_one({'@id':question['uri2']},projection={'_id':False})
+                if left == None:
+                    print "Couldn't retrive entity with URI", question['uri1']
+                    continue
+                if right == None:
+                    print "Couldn't retrive entity with URI", question['uri2']
+                    continue
+            else:
+                left = dbClient[dbName]["artists"].find_one({'@id':question['uri2']},projection={'_id':False})
+                right = dbClient[dbName]["artists"].find_one({'@id':question['uri1']},projection={'_id':False})
+                if left == None:
+                    print "Couldn't retrive entity with URI", question['uri2']
+                    continue
+                if right == None:
+                    print "Couldn't retrive entity with URI", question['uri1']
+                    continue
+                    
             #print "\nLeft\n  ",left 
             #print "\nRight\n ",right
+            
             matches = getMatches(left, right)
             #print "\nmatches :\n"
             #pprint(matches)
+            t = getTags(dbClient,dbName,question)
             if stats == "True":
                 s = getStats(dbClient,dbName,question)
-                output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"stats":s}]
+                output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"tags":t,"stats":s}]
             else:
-                output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched']}]
+                output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"tags":t}]
         return output
     else:
-        return {'status':"Couldn't retrive questions"}
+        return {'status':"Couldn't retrive questions mostly because user not found."}, 400
         
 if __name__ == '__main__':
     # User account database

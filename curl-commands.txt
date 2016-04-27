@@ -9,7 +9,7 @@ curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json
 2. Send bulk question request from interface (GET request):
 -----------------------------------------------------------
 curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10}' -u nilayvac@usc.edu:linkCuration
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10,"stats":"True"}' -u nilayvac@usc.edu:linkCuration
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10,"stats":"True"}' -u nilayvac@usc.edu:linkCuration
 
 3. Send single question request from dedupe (POST request):
 ----------------------------------------------------------
