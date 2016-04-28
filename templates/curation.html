@@ -22,26 +22,30 @@
                 $("#four").css("display", "none");
             });
 
+            $(".close").click(function(){
+                $("#zero").css("display", "none");
+            });
+
         });
     </script>
 </head>
 <div class="page">
 <div class="filter-section">
-  <div class="col-lg-4 search-bar">
+  <div class="search-bar">
     <div class="input-group">
       <input type="text" class="form-control" placeholder="Search for...">
       <span class="input-group-btn">
         <button class="btn btn-default" type="button">Go!</button>
       </span>
-    </div><!-- /input-group -->
-  </div><!-- /.col-lg-6 -->
+    </div>
+  </div>
     <div class="filter-btn">
-    <button class="btn btn-primary " type="button">
+    <button class="btn btn-primary " type="button" style="background-color: #9d9d9d; border-color:  #9d9d9d;">
   Unanswered <span class="badge">4</span>
     </button>
         </div>
         <div class="museum-btn">
-        <button class="btn btn-primary" type="button">
+        <button class="btn btn-primary" type="button" style="background-color: #9d9d9d; border-color:  #9d9d9d;">
   Smithsonian American Art Museum Data <span class="badge">38</span>
     </button>
     </div>
@@ -49,6 +53,7 @@
     <div class="cards">
         <div id = "zero" class="card transition block">
 	<div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		<h2 class="transition">Arnold Aaron Friedman</h2>
         <div class="progress">
           <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 90%">
@@ -61,7 +66,7 @@
             <span class="sr-only">5% Complete (warning)</span>
         </div>
 </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:160px;">American painter and lithographer, 1879-1946</p>
+		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">American painter and lithographer, 1879-1946</p>
 	</div>
 	<div class="cta-container transition">
 		<div class="questionarea">
@@ -69,8 +74,8 @@
 				<table class="table table-hover">
                   <thead>
                     <tr>
-                      <th>Property Match</th>
-                      <th>Value</th>
+                      <th>Values that Match</th>
+                      <th>ULAN, SAAM</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -83,9 +88,9 @@
               <table class="table table-hover">
                   <thead>
                     <tr>
-                      <th>Property Mismatch</th>
-                      <th>Value1</th>
-                      <th>Value2</th>
+                      <th>Values that do not match</th>
+                      <th>ULAN</th>
+                      <th>SAAM</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -103,13 +108,19 @@
                 </table>
             </div>
 		</div>
-		<a href="#" class="cta green-btn" onclick="">Yes</a>
+        <form>
+            <div>
+                    <textarea class="form-control" style = "width:98%; margin-left:1%; margin-right:1%;" rows="4" id="comment" placeholder="Comments (optional)"></textarea>
+            </div>
+        </form>
+		<a href="#" class="cta green-btn">Yes</a>
 		<a href="#" class="cta red-btn">No</a>
 		<a href="#" class="cta yellow-btn">Not Sure</a>
 	</div>
 </div>
 <div id = "one" class="card transition block">
 	<div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		<h2 class="transition">Leonardo da Vinci</h2>
         <div class="progress">
           <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 55%">
@@ -122,7 +133,7 @@
             <span class="sr-only">30% Complete (warning)</span>
         </div>
 </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:160px;">April 15, 1452, Anchiano | May 2, 1519, Amboise, France | Mona Lisa | The Last Supper</p>
+		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">April 15, 1452, Anchiano | May 2, 1519, Amboise, France | Mona Lisa | The Last Supper</p>
 	</div>
 	<div class="cta-container transition">
 		<div class="questionarea">
@@ -145,8 +156,8 @@
                   <thead>
                     <tr>
                       <th>Property Mismatch</th>
-                      <th>Value1</th>
-                      <th>Value2</th>
+                      <th>ULAN</th>
+                      <th>SAAM</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -172,6 +183,7 @@
 
 <div id="two" class="card transition block">
 	<div>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		<h2 class="transition">Vincent Van Gogh</h2>
         <div class="progress">
           <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 95%">
@@ -184,7 +196,7 @@
             <span class="sr-only">0% Complete (warning)</span>
         </div>
             </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:160px;">March 30, 1853, Zundert, Netherlands | July 29, 1890, Auvers-sur-Oise, France | The Starry Night | Irises</p>
+		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">March 30, 1853, Zundert, Netherlands | July 29, 1890, Auvers-sur-Oise, France | The Starry Night | Irises</p>
 	</div>
 	<div class="cta-container transition">
 		<div class="questionarea">
@@ -207,8 +219,8 @@
                   <thead>
                     <tr>
                       <th>Property Mismatch</th>
-                      <th>Value1</th>
-                      <th>Value2</th>
+                      <th>ULAN</th>
+                      <th>SAAM</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -233,6 +245,7 @@
 
 <div id="three" class="card transition block">
 	<div>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		<h2 class="transition">Rembrandt</h2>
         <div class="progress">
           <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 85%">
@@ -245,7 +258,7 @@
             <span class="sr-only">15% Complete (warning)</span>
         </div>
             </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:160px;">July 15, 1606, Leiden, Netherlands | October 4, 1669, Amsterdam, Netherlands | The Night Watch | The Storm on the Sea of Galilee</p>
+		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">July 15, 1606, Leiden, Netherlands | October 4, 1669, Amsterdam, Netherlands | The Night Watch | The Storm on the Sea of Galilee</p>
 	</div>
 	<div class="cta-container transition"><div class="questionarea">
 			<div class="modal-body">
@@ -267,8 +280,8 @@
                   <thead>
                     <tr>
                       <th>Property Mismatch</th>
-                      <th>Value1</th>
-                      <th>Value2</th>
+                      <th>ULAN</th>
+                      <th>SAAM</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -293,6 +306,7 @@
 
 <div id="four" class="card transition block">
 	<div>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		<h2 class="transition">Michelangelo</h2>
         <div class="progress">
           <div class="progress-bar progress-bar-grey progress-bar-striped" style="width: 100%">
@@ -305,7 +319,7 @@
             <span class="sr-only">0% Complete (warning)</span>
         </div>
         </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%;  margin-top:160px;">March 6, 1475, Caprese Michelangelo, Italy | February 18, 1564, Rome, Italy | Sistine Chapel ceiling | David</p>
+		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%;  margin-top:10%;">March 6, 1475, Caprese Michelangelo, Italy | February 18, 1564, Rome, Italy | Sistine Chapel ceiling | David</p>
 	</div>
 	<div class="cta-container transition"><div class="questionarea">
 			<div class="modal-body">
@@ -327,8 +341,8 @@
                   <thead>
                     <tr>
                       <th>Property Mismatch</th>
-                      <th>Value1</th>
-                      <th>Value2</th>
+                      <th>ULAN</th>
+                      <th>SAAM</th>
                     </tr>
                   </thead>
                   <tbody>

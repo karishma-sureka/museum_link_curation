@@ -12,12 +12,6 @@
         <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <link rel="stylesheet" type="text/css" href="static/css/style.css">
-    <script language="javascript" type="text/javascript">
-    function submit()
-    {
-        window.location.href = "localhost:5000/curation";
-    }
-    </script>
 </head>
 <body>
 <div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
@@ -28,7 +22,7 @@
           <h1 class="text-center">Login</h1>
       </div>
       <div class="modal-body">
-          <form class="form col-md-12 center-block" >
+          <form class="form col-md-12 center-block" action="curation" method="POST" >
             <div class="form-group">
               <input id="user-email" type="text" class="form-control input-lg" placeholder="Email">
             </div>
@@ -36,7 +30,15 @@
               <input id="user-password" type="password" class="form-control input-lg" placeholder="Password">
             </div>
             <div class="form-group">
-              <button id = "submit-btn" class="btn btn-primary btn-lg btn-block" onclick="return submit()">Sign In</button>
+              <button id = "submit-btn" class="btn btn-primary btn-lg btn-block">Sign In</button>
+            </div>
+          </form>
+          <form class="form col-md-12 center-block" action="userprofile" method="GET" >
+            <div class="form-group"><hr>
+              <p id = "new-user-text" >New to Link Curation?</p>
+            </div>
+              <div class="form-group">
+              <button id = "register-btn" class="btn btn-primary btn-lg btn-block btn-gray">New Registration</button>
             </div>
           </form>
       </div>

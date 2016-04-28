@@ -30,18 +30,30 @@ createDatabase(dbClient,dbName)
 cleanDatabase(dbClient,dbName,"answer")
 printDatabases(dbClient,dbName)
 
-@webapp.route('/curation')
-def submit():
-    return render_template('cards.html')
-
 @webapp.route('/')
-def show_login_profile():
+def default():
+    return render_template('login.html')
+
+@webapp.route('/login')
+def login():
     return render_template('login.html')
 
 @webapp.route('/spec')
 def show_specs():
     return render_template('spec.html')
     
+@webapp.route('/register')
+def register_user():
+    return render_template('register.html')
+
+@webapp.route('/user_profile')
+def show_user_profile():
+    return render_template('userprofile.html')
+
+@webapp.route('/curation')
+def show_curation():
+    return render_template('curation.html')
+
 @webapp.route('/answer')
 def redirectAnswer():
     return redirect(url_for("answer"))

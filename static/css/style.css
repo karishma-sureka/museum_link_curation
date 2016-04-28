@@ -14,14 +14,26 @@
     background-size: 100%;
 }
 
-#submit-btn{
-
+#new-user-text{
+    color:#737373;
 }
 
 #login-container{
-    margin-top: 25%;
+    margin-top: 18%;
 }
 
 #entity-container{
     margin-top: 2%;
+}
+
+
+.btn-gray, .btn-gray:hover, .btn-gray:active, .btn-gray:visited {
+    background-color: #737373 !important;
+    border-color: #737373;
+}
+
+* {
+  -webkit-border-radius: 0 !important;
+     -moz-border-radius: 0 !important;
+          border-radius: 0 !important;
 }
