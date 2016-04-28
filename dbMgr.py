@@ -53,16 +53,16 @@ def createDatabase(dbC,dname):
     
     ### Question (Pair of URIs) from different database
     #populateQuestions(dbC,dname)
-    #populateQuestionsFromCSV(dbC,dname, os.path.join('data', 'sample.csv'))
-    populateQuestionsFromJSON(dbC,dname, os.path.join('data','questions.json'))
+    populateQuestionsFromCSV(dbC,dname, os.path.join('data', 'sample.csv'))
+    #populateQuestionsFromJSON(dbC,dname, os.path.join('data','questions.json'))
     
     ### Entities from different database
-    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','sample.json'))
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_architect.json'))
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_artist.json'))
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','NPG.json'))
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','SAAM.json'))
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','ULAN.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','sample.json'))
+    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_architect.json'))
+    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_artist.json'))
+    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','NPG.json'))
+    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','SAAM.json'))
+    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','ULAN.json'))
 
 #Artists
     #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)
@@ -70,8 +70,8 @@ def populateEntitiesFromJSON(dbC,dname,filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
     # Change this range on actual server
-    #for i in range(0,len(data["people"]):
-    for i in range(0,3):
+    for i in range(0,len(data["people"])):
+    #for i in range(0,3):
         #pprint(data["people"][i])
         dbC[dname]["artists"].insert_one(data["people"][i])
         
@@ -161,8 +161,8 @@ def populateQuestionsFromJSON(dbC,dname,filename):
     count = data["bulk"]
     data = data["payload"]
     # Change this range on actual server
-    #for i in range(0,count):
-    for i in range(0,20):
+    for i in range(0,count):
+    #for i in range(0,20):
         pprint(data[i])
         qe = {"status":1,
           "uniqueURI":generateUniqueURI(data[i]["uri1"],data[i]["uri2"]),

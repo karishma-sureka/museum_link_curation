@@ -38,6 +38,10 @@ def submit():
 def show_login_profile():
     return render_template('login.html')
 
+@webapp.route('/spec')
+def show_specs():
+    return render_template('spec.html')
+    
 @webapp.route('/answer')
 def redirectAnswer():
     return redirect(url_for("answer"))
