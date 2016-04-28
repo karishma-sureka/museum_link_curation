@@ -49,15 +49,20 @@ def cleanDatabase(dbC,dname,docname):
 # Create database with default values for curation
 def createDatabase(dbC,dname):
     populateTags(dbC,dname)
-    populateCurators(dbC,dname)
-    #populateQuestions(dbC,dname)
-    populateQuestionsFromCSV(dbC,dname, os.path.join('data', 'sample.csv'))
+    #populateCurators(dbC,dname)
     
-    # Not required to be populated
-    # Save on the fly as per the PUT request 
-    #saveAnswers(dbC,dname) 
-
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'sample.json'))
+    ### Question (Pair of URIs) from different database
+    #populateQuestions(dbC,dname)
+    #populateQuestionsFromCSV(dbC,dname, os.path.join('data', 'sample.csv'))
+    populateQuestionsFromJSON(dbC,dname, os.path.join('data','questions.json'))
+    
+    ### Entities from different database
+    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','sample.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_architect.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_artist.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','NPG.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','SAAM.json'))
+    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','ULAN.json'))
 
 #Artists
     #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)
@@ -65,23 +70,26 @@ def populateEntitiesFromJSON(dbC,dname,filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
     # Change this range on actual server
-    for i in range(0,2):
+    #for i in range(0,len(data["people"]):
+    for i in range(0,3):
         #pprint(data["people"][i])
         dbC[dname]["artists"].insert_one(data["people"][i])
-    
+        
 #Tag
     #tagname, string 
 # Populate database with default tags
 def populateTags(dbC,dname):
+    te = {"tagname":"autry"}
+    dbC[dname]["tag"].insert_one(te)
+    te = {"tagname":"dbpedia"}
+    dbC[dname]["tag"].insert_one(te)
+    te = {"tagname":"npg"}
+    dbC[dname]["tag"].insert_one(te)
     te = {"tagname":"saam"}
     dbC[dname]["tag"].insert_one(te)
     te = {"tagname":"ulan"}
     dbC[dname]["tag"].insert_one(te)
     te = {"tagname":"viaf"}
-    dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"npg"}
-    dbC[dname]["tag"].insert_one(te)
-    te = {"tagname":"autry"}
     dbC[dname]["tag"].insert_one(te)
     
 #Curator
@@ -109,6 +117,7 @@ def populateCurators(dbC,dname):
 # Add the new curator from the client interface
 def addCurator(dbC, dname, ce):
     dbC[dname]["curator"].insert_one(ce)
+    printDatabase(dbC,dname,"curator")
     
 # Question
     #status, integer: 1 - Not Started, 2 - In Progress, 3 - Completed, 4 - Disagreement
@@ -146,14 +155,73 @@ def populateQuestions(dbC,dname):
          }
     dbC[dname]["question"].insert_one(qe)
 
+def populateQuestionsFromJSON(dbC,dname,filename):
+    json_data=open(filename).read()
+    data = json.loads(json_data)
+    count = data["bulk"]
+    data = data["payload"]
+    # Change this range on actual server
+    #for i in range(0,count):
+    for i in range(0,20):
+        pprint(data[i])
+        qe = {"status":1,
+          "uniqueURI":generateUniqueURI(data[i]["uri1"],data[i]["uri2"]),
+          "lastSeen": datetime.datetime.utcnow(),
+          "tags":[dbC[dname]["tag"].find_one({'tagname':findTag(data[i]["uri1"])})['_id'],
+                  dbC[dname]["tag"].find_one({'tagname':findTag(data[i]["uri2"])})['_id'] ],
+           "uri1":data[i]["uri1"],
+           "uri2":data[i]["uri2"],
+           "decision": [], #Should be updated in submit answer
+           "dedupe ": data[i]["dedupe"]
+         }
+        dbC[dname]["question"].insert_one(qe)
+        
 #Find tag from the URL
 def findTag(uri):
     tag = "Default Tag"
-    if "saam" in uri:
+    if "/dbpedia.org/" in uri:
+        tag = "dbpedia"
+    elif "/npgConstituents/" in uri:
+        tag = "npg"
+    elif "/saam/" in uri:
         tag = "saam"
-    elif "ulan" in uri:
+    elif "/ulan/" in uri:
         tag = "ulan"
     return tag
+    
+def getTags(dbC,dname,entity):
+    tags = []
+    for tag in entity["tags"]:
+        tags = tags + [dbC[dname]["tag"].find_one({'_id':ObjectId(tag)})["tagname"]]
+    return tags
+ 
+def checkURIOrdering(uri1,uri2):
+    # Keep adding new database here. 
+    # Internal ordering does not matter as we are just interested in single ordering between any pair of two database
+    ordering = {"/dbpedia.org/":1,"/npgConstituents/":2,"/saam/":3,"/ulan/":4}
+    
+    val1 = 0
+    val2 = 0
+    for key in ordering.keys():
+        if key in uri1:
+            val1 = ordering[key]
+            break;
+    
+    for key in ordering.keys():
+        if key in uri2:
+            val2 = ordering[key]
+            break;
+    
+    if val1 > val2:
+        return False
+    else:
+        return True
+
+def generateUniqueURI(uri1,uri2):
+    if checkURIOrdering(uri1,uri2):
+        return uri1+uri2
+    else:
+        return uri2+uri1
  
 # Populate default set of questions from csv file
 def populateQuestionsFromCSV(dbC,dname,csvfname):
@@ -195,27 +263,6 @@ def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedupe):
              }
         dbC[dname]["question"].insert_one(qe)
         return None
-
-def generateUniqueURI(uri1,uri2):
-    # Keep adding new database here. 
-    # Internal ordering does not matter as we are just interested in single ordering between any pair of two database
-    ordering = {"http://edan.si.edu/saam":1,"http://vocab.getty.edu/ulan":2}
-    val1 = 0
-    val2 = 0
-    for key in ordering.keys():
-        if key in uri1:
-            val1 = ordering[key]
-            break;
-    
-    for key in ordering.keys():
-        if key in uri2:
-            val2 = ordering[key]
-            break;
-    
-    if val1 > val2:
-        return uri2+uri1
-    else:
-        return uri1+uri2
         
 # Retrieve set of questions from database based on tags, lastseen, unanswered vs in progress
 def getQuestionsForUID(dbC,dname,uid,count):
@@ -257,14 +304,8 @@ def getQuestionsForUID(dbC,dname,uid,count):
     return q[:count]
         
 def getMatches(left,right):
-    
-    if left == None or right == None:
-        return {"ExactMatch":None,"Unmatched":None}
-    
     exactMatch = {"name":[],"value":[]}
-    #exactMatch = {}
-    unmatched = {"name":[],"lValue":[],"rValue":[]}
-    #unmatched = {}
+    unmatched = {"name":["URI"],"lValue":[left["@id"]],"rValue":[right["@id"]]}
     
     fields = ["schema:name","schema:additionalName","schema:nationality","schema:birthDate","schema:deathDate","schema:birthPlace"]
     
@@ -313,11 +354,13 @@ def submitAnswer(dbC, dname, qid, answer, uid):
     q = dbC[dname]["question"].find_one({'_id':ObjectId(qid)})
     
     if q == None:
-        print "Submit answer failed for qid: ", qid
-        return False
+        #print "Submit answer failed for qid: ", qid
+        message = "Question not found for qid: ",qid
+        return {"status":False,"message":message}
     elif q['status'] == 3 or q['status'] == 4:
-        print "Question has already been answered by prescribed number of curators, qid: ", qid
-        return False
+        #print "Question has already been answered by prescribed number of curators, qid: ", qid
+        message = "Predetermined number of curators have already answered question with qid: ", qid
+        return {"status":False,"message":message}
     else:
         #print "Found the question"
         
@@ -325,8 +368,9 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         # Check authors in all answers if current user has already answered the question
         for aid in q["decision"]:
             if dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})["author"] == uid:
-                print "User has already submitted answer to question ", qid
-                return False
+                #print "User has already submitted answer to question ", qid
+                message = "User has already submitted answer to question witg qid ", qid
+                return {"status":False,"message":message}
         
         # Add answer to database
         a = dbC[dname]["answer"]
@@ -374,11 +418,10 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         q =  dbC[dname]["question"].find_one_and_update(
             {'_id':ObjectId(qid)},
             {'$set': {'status':q['status'],'decision':q['decision']}},
-            #projection={'_id':False,'status':True,},
+            #projection={'_id':False,'status':True},
             return_document=ReturnDocument.AFTER)
         
         
         print "\n Updated question document \n",q
-        
         #printDatabase(dbC,dname,"answer")
-        return True
+        return {"status":True,"message":"Appended answer to question's decision list"}

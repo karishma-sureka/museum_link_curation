@@ -1,6 +1,39 @@
 Curl Commands
 =============
 
+
+____________________________________________________________________________
+
+                                   User                
+____________________________________________________________________________
+
+
+1. Register User (POST request)
+-------------------------------
+curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"nilayvac@usc.edu","password":"linkCuration"}'
+curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"ksureka@usc.edu","password":"linkCuration"}'
+
+2. Login User (for duration) and get time bound API token (GET request)
+------------------------------------------------------------------
+curl -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}' -u nilayvac@usc.edu:linkCuration
+curl -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}' -u ksureka@usc.edu:linkCuration
+
+3. Update user profile (PUT request)
+------------------------------------------------------------
+curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Nilay Chheda","rating":5,"tags":["saam","ulan"]}' -u nilayvac@usc.edu:linkCuration
+curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Karishma Sureka","rating":5,"tags":["dbpedia","npg"]}' -u ksureka@usc.edu:linkCuration
+
+4. Logout User (Automatically logged out based on the token)
+------------------------------------------------------------
+TBD
+
+
+
+____________________________________________________________________________
+
+                                   Question                
+____________________________________________________________________________
+
 1. Send single question request from interface (GET request):
 -------------------------------------------------------------
 curl -X GET http://localhost:5000/v1/question -u nilayvac@usc.edu:linkCuration
@@ -9,7 +42,7 @@ curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json
 2. Send bulk question request from interface (GET request):
 -----------------------------------------------------------
 curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10}' -u nilayvac@usc.edu:linkCuration
-curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uid":"nilayvac@usc.edu","bulk":10,"stats":"True"}' -u nilayvac@usc.edu:linkCuration
+curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10,"stats":"True"}' -u nilayvac@usc.edu:linkCuration
 
 3. Send single question request from dedupe (POST request):
 ----------------------------------------------------------
@@ -23,7 +56,12 @@ curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/jso
 -- Example -- 
 curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":2,"payload":[{"uri1":"http://vocab.getty.edu/ulan/50002345","uri2":"http://edan.si.edu/saam/id/person-institution/2345","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}},{"uri1":"http://vocab.getty.edu/ulan/50003456","uri2":"http://edan.si.edu/saam/id/person-institution/3456","dedupe":{"ver":"1.0","revision":"4","score":"0.85"}}]}'
 
-5. Send submit answer request (PUT request)
+____________________________________________________________________________
+
+                                   Answer                
+____________________________________________________________________________
+
+1. Send submit answer request (PUT request)
 -------------------------------------------
 Using Token
 curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eeba7f6bf2d1e58a88471"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTQ4MSwiaWF0IjoxNDYwNTk1ODgxfQ.eyJpZCI6MX0.PyLZSP7q0iWh-n1yazz8p23kO3cUJtmQbGucjvTYtOg:x
@@ -31,20 +69,4 @@ curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" 
 
 Using credentials
 curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u nilayvac@usc.edu:linkCuration
-curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u ksureka@usc.edu:linkCuration
-
-6. Register User (POST request)
--------------------------------
-curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"nilayvac@usc.edu","password":"linkCuration"}'
-curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"ksureka@usc.edu","password":"linkCuration"}'
-
-7. Login User (for duration) and get time bound API token (GET request)
-------------------------------------------------------------------
-curl -u nilayvac@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json"
-curl -u nilayvac@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}'
-curl -u ksureka@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json"
-curl -u ksureka@usc.edu:linkCuration -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}'
-
-8. Logout User (Automatically logged out based on the token)
-------------------------------------------------------------
-TBD
+curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u ksureka@usc.edu:linkCurationn
