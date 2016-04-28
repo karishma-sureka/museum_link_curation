@@ -1,0 +1,435 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Link Curation API",
+        "description": "We support three basic APIs- Questions, Answers and Account Services",
+        "version": "1.0.0"
+    },
+    "host": "localhost:5000",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/v1",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/user": {
+            "post": {
+                "summary": "Register a new user",
+                "description": "Create new user account for a curator\n\nExamples:\n- curl -X POST http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"username\":\"nilayvac@usc.edu\",\"password\":\"linkCuration\"}'\n- curl -X POST http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"username\":\"ksureka@usc.edu\",\"password\":\"linkCuration\"}'\n",
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Username of a user",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "Password of a user",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile information for a user",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Login existing user and get time bound API token",
+                "description": "Authenticates user credentials and returns time sensitive API access token. This token can be used instead of credentials to access protected resources\n\nExamples:\n- curl -X GET http://localhost:5000/user -H -u nilayvac@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"duration\":3600}' -u nilayvac@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/user -u ksureka@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"duration\":3600}' -u ksureka@usc.edu:linkCuration\n",
+                "parameters": [
+                    {
+                        "name": "duration",
+                        "in": "query",
+                        "description": "Access token validation in seconds. Default is 10 minutes",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile information of user along with token details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Login"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update user profile",
+                "description": "Update user profile details like name of the user, tags and rating. User Authentication required to access this API. At least one of the three paraneters is required\n\nExampls:\n- curl -X PUT http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"name\":\"Nilay Chheda\",\"rating\":5,\"tags\":[\"saam\",\"ulan\"]}' -u nilayvac@usc.edu:linkCuration\n- curl -X PUT http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"name\":\"Nilay Chheda\",\"rating\":5,\"tags\":[\"saam\",\"ulan\"]}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x\n- curl -X PUT http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"name\":\"Karishma Sureka\",\"rating\":5,\"tags\":[\"dbpedia\",\"npg\"]}' -u ksureka@usc.edu:linkCuration\n- curl -X PUT http://localhost:5000/user -H \"Content-Type: application/json\" -d '{\"name\":\"Karishma Sureka\",\"rating\":5,\"tags\":[\"dbpedia\",\"npg\"]}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x\n",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name of the user",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "rating",
+                        "in": "query",
+                        "description": "Rating of the user",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "tags",
+                        "in": "query",
+                        "description": "Tags of the user in String array",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile information of user along with token details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Login"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/question": {
+            "get": {
+                "summary": "Serve relevant questions from database",
+                "description": "This Question endpoint returns set of questions to client based on different paraneters associated \nwith the user and user's previous history. User Authentication required to access this API\n\nExamples: \n- curl -X GET http://localhost:5000/question -u nilayvac@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"stats\":\"True\"}' -u nilayvac@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"bulk\":10}' -u nilayvac@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"bulk\":10,\"stats\":\"True\"}' -u nilayvac@usc.edu:linkCuration\n- curl -X GET http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"bulk\":10,\"stats\":\"True\"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x\n",
+                "parameters": [
+                    {
+                        "name": "stats",
+                        "in": "query",
+                        "description": "Flag to request question stastics in the response",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "bulk",
+                        "in": "query",
+                        "description": "Limit number of questions returned. Default is 10",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "tags": [
+                    "Question"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of questions",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Questions"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create new question(s) (pair(s)) in the database",
+                "description": "This Question endpoint allows external software entity like dedupe to create new questions. No authentication required. \n\nExamples:\n- curl -X POST http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"uri1\":\"http://vocab.getty.edu/ulan/50001234\",\"uri2\":\"http://edan.si.edu/saam/id/person-institution/1234\",\"dedupe\":{\"ver\":\"1.0\",\"revision\":\"4\",\"score\":\"0.45\"}}'\n- curl -X POST http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"bulk\":count n,\"payload\":[{},{},... n entries]}'\n- curl -X POST http://localhost:5000/question -H \"Content-Type: application/json\" -d '{\"bulk\":2,\"payload\":[{\"uri1\":\"http://vocab.getty.edu/ulan/50002345\",\"uri2\":\"http://edan.si.edu/saam/id/person-institution/2345\",\"dedupe\":{\"ver\":\"1.0\",\"revision\":\"4\",\"score\":\"0.45\"}},{\"uri1\":\"http://vocab.getty.edu/ulan/50003456\",\"uri2\":\"http://edan.si.edu/saam/id/person-institution/3456\",\"dedupe\":{\"ver\":\"1.0\",\"revision\":\"4\",\"score\":\"0.85\"}}]}'\n",
+                "parameters": [
+                    {
+                        "name": "uri1",
+                        "in": "query",
+                        "description": "One of the URI of a pair of question",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "uri2",
+                        "in": "query",
+                        "description": "One of the URI of a pair of question",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "dedupe",
+                        "in": "query",
+                        "description": "Information related to pair generated from dedupe",
+                        "required": true,
+                        "type": "string",
+                        "format": "byte"
+                    },
+                    {
+                        "name": "bulk",
+                        "in": "query",
+                        "description": "Set this valur for creating multiple pairs in one call",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "payload",
+                        "in": "query",
+                        "description": "List of three tuple, uri1, uri2 and dedupe for bulk call.",
+                        "required": true,
+                        "type": "string",
+                        "format": "byte"
+                    }
+                ],
+                "tags": [
+                    "Question"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Curation interface data about Question(s)",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Decision"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/answer": {
+            "put": {
+                "summary": "Submit an answer",
+                "description": "Submit human curated answer related to a question. User Authentication required to access this API.\n\nExamples:\n- curl -X PUT http://localhost:5000/v1/answer -H \"Content-Type: application/json\" -d '{\"value\":\"1\",\"comment\":\"Just another comment\",\"qid\":\"570eeba7f6bf2d1e58a88471\"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTQ4MSwiaWF0IjoxNDYwNTk1ODgxfQ.eyJpZCI6MX0.PyLZSP7q0iWh-n1yazz8p23kO3cUJtmQbGucjvTYtOg:x\n- curl -X PUT http://localhost:5000/v1/answer -H \"Content-Type: application/json\" -d '{\"value\":\"1\",\"comment\":\"Just another comment\",\"qid\":\"570eeba7f6bf2d1e58a88471\"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x\n- curl -X PUT http://localhost:5000/v1/answer -H \"Content-Type: application/json\" -d '{\"value\":\"1\",\"comment\":\"Just another comment\",\"qid\":\"570eec1df6bf2d1e58a88479\"}' -u nilayvac@usc.edu:linkCuration\n- curl -X PUT http://localhost:5000/v1/answer -H \"Content-Type: application/json\" -d '{\"value\":\"1\",\"comment\":\"Just another comment\",\"qid\":\"570eec1df6bf2d1e58a88479\"}' -u ksureka@usc.edu:linkCuration\n",
+                "parameters": [
+                    {
+                        "name": "qid",
+                        "in": "query",
+                        "description": "qid of a question being answered",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "comment",
+                        "in": "query",
+                        "description": "Comment related to decision",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "value",
+                        "in": "query",
+                        "description": "Decision value from 1 to 3",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Answer"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Login": {
+            "properties": {
+                "User": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/UserProfile"
+                    }
+                },
+                "Token": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Token"
+                    }
+                }
+            }
+        },
+        "UserProfile": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the user"
+                },
+                "rating": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "User rating from 0-5."
+                },
+                "tags": {
+                    "type": "string",
+                    "description": "array of tag strings associated with the user"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Username of the user"
+                }
+            }
+        },
+        "Token": {
+            "properties": {
+                "duration": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Token validity in seconds"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "Alphanumeric value of a token"
+                }
+            }
+        },
+        "User": {
+            "properties": {
+                "Location": {
+                    "type": "string",
+                    "description": "Unique url endpoint for a user"
+                },
+                "Username": {
+                    "type": "string",
+                    "description": "Username that was registered"
+                }
+            }
+        },
+        "Questions": {
+            "properties": {
+                "Exact_Match": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Exactmatched"
+                    }
+                },
+                "Unmatched": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Unmatched"
+                    }
+                },
+                "qid": {
+                    "type": "string",
+                    "description": "Unique question ID"
+                },
+                "stats": {
+                    "type": "string",
+                    "description": "Returns question statitics if requested in query"
+                }
+            }
+        },
+        "Exactmatched": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the property that matched exactly"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "Value of the property that matched exactly on both side."
+                }
+            }
+        },
+        "Unmatched": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the property."
+                },
+                "lvalue": {
+                    "type": "string",
+                    "description": "Value of the property on left side."
+                },
+                "rvalue": {
+                    "type": "string",
+                    "description": "Value of the property on right side."
+                }
+            }
+        },
+        "Decision": {
+            "properties": {
+                "Value": {
+                    "type": "integer",
+                    "description": "List of decision values from curation interface. 1 - Match, 2 - No Match, 3 - Not Sure"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "List of decision comment from curation interface."
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Message indicating that human curated information is not available."
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -49,7 +49,7 @@ def cleanDatabase(dbC,dname,docname):
 # Create database with default values for curation
 def createDatabase(dbC,dname):
     populateTags(dbC,dname)
-    populateCurators(dbC,dname)
+    #populateCurators(dbC,dname)
     
     ### Question (Pair of URIs) from different database
     #populateQuestions(dbC,dname)
@@ -71,7 +71,7 @@ def populateEntitiesFromJSON(dbC,dname,filename):
     data = json.loads(json_data)
     # Change this range on actual server
     #for i in range(0,len(data["people"]):
-    for i in range(0,5):
+    for i in range(0,3):
         #pprint(data["people"][i])
         dbC[dname]["artists"].insert_one(data["people"][i])
         
@@ -117,6 +117,7 @@ def populateCurators(dbC,dname):
 # Add the new curator from the client interface
 def addCurator(dbC, dname, ce):
     dbC[dname]["curator"].insert_one(ce)
+    printDatabase(dbC,dname,"curator")
     
 # Question
     #status, integer: 1 - Not Started, 2 - In Progress, 3 - Completed, 4 - Disagreement
@@ -161,7 +162,7 @@ def populateQuestionsFromJSON(dbC,dname,filename):
     data = data["payload"]
     # Change this range on actual server
     #for i in range(0,count):
-    for i in range(0,5):
+    for i in range(0,20):
         pprint(data[i])
         qe = {"status":1,
           "uniqueURI":generateUniqueURI(data[i]["uri1"],data[i]["uri2"]),
@@ -187,12 +188,40 @@ def findTag(uri):
     elif "/ulan/" in uri:
         tag = "ulan"
     return tag
- 
-def getTags(dbC,dname,question):
+    
+def getTags(dbC,dname,entity):
     tags = []
-    for tag in question["tags"]:
+    for tag in entity["tags"]:
         tags = tags + [dbC[dname]["tag"].find_one({'_id':ObjectId(tag)})["tagname"]]
     return tags
+ 
+def checkURIOrdering(uri1,uri2):
+    # Keep adding new database here. 
+    # Internal ordering does not matter as we are just interested in single ordering between any pair of two database
+    ordering = {"/dbpedia.org/":1,"/npgConstituents/":2,"/saam/":3,"/ulan/":4}
+    
+    val1 = 0
+    val2 = 0
+    for key in ordering.keys():
+        if key in uri1:
+            val1 = ordering[key]
+            break;
+    
+    for key in ordering.keys():
+        if key in uri2:
+            val2 = ordering[key]
+            break;
+    
+    if val1 > val2:
+        return False
+    else:
+        return True
+
+def generateUniqueURI(uri1,uri2):
+    if checkURIOrdering(uri1,uri2):
+        return uri1+uri2
+    else:
+        return uri2+uri1
  
 # Populate default set of questions from csv file
 def populateQuestionsFromCSV(dbC,dname,csvfname):
@@ -234,34 +263,6 @@ def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedupe):
              }
         dbC[dname]["question"].insert_one(qe)
         return None
-        
-def checkURIOrdering(uri1,uri2):
-    # Keep adding new database here. 
-    # Internal ordering does not matter as we are just interested in single ordering between any pair of two database
-    ordering = {"/dbpedia.org/":1,"/npgConstituents/":2,"/saam/":3,"/ulan/":4}
-    
-    val1 = 0
-    val2 = 0
-    for key in ordering.keys():
-        if key in uri1:
-            val1 = ordering[key]
-            break;
-    
-    for key in ordering.keys():
-        if key in uri2:
-            val2 = ordering[key]
-            break;
-    
-    if val1 > val2:
-        return False
-    else:
-        return True
-
-def generateUniqueURI(uri1,uri2):
-    if checkURIOrdering(uri1,uri2):
-        return uri1+uri2
-    else:
-        return uri2+uri1
         
 # Retrieve set of questions from database based on tags, lastseen, unanswered vs in progress
 def getQuestionsForUID(dbC,dname,uid,count):
@@ -417,7 +418,7 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         q =  dbC[dname]["question"].find_one_and_update(
             {'_id':ObjectId(qid)},
             {'$set': {'status':q['status'],'decision':q['decision']}},
-            #projection={'_id':False,'status':True,},
+            #projection={'_id':False,'status':True},
             return_document=ReturnDocument.AFTER)
         
         

@@ -12,7 +12,8 @@ from dbMgr import *
 
 webapp = Flask(__name__)
 api = Api(webapp)
-
+# On Server
+# dbClient = MongoClient('localhost', 12345)
 dbClient = MongoClient('localhost', 27017)
 dbName = "TestDb1"
 usrdb = SQLAlchemy(webapp)
@@ -20,7 +21,7 @@ auth = HTTPBasicAuth()
 webapp.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy dog'
 webapp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 webapp.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-tokenExpiry = 60 # 60 seconds
+tokenExpiry = 600 # 60 seconds X 10
 
 # Database of curation data
 # Uncommment below lines only once
@@ -120,10 +121,48 @@ class userMgr(Resource):
 
     # Login and get time bound token for API access
     def get(self):
-        if not 'duration' in request.json:
+        if request.json == None or not 'duration' in request.json:
             return login_user(tokenExpiry)
         else:
             return login_user(request.json['duration'])
+            
+    # Update User (Curator) profile. 
+    @auth.login_required
+    def put(self):
+        print "Input received: ",request.json
+        
+        if request.json == None:
+            return {'message': 'No input provided'}, 400
+        
+        # Update tag for a user
+        if 'tags' in request.json:
+            #print request.json["tags"], type(request.json["tags"])
+            if type(request.json["tags"]) != list:
+                return {'message': 'Tags type should by list of String'}, 400
+                
+            tags = []
+            for tag in request.json['tags']:
+                tags = tags + [dbClient[dbName]["tag"].find_one({'tagname':tag})["_id"]]
+            dbClient[dbName]["curator"].find_one_and_update({'uid':g.user.username},{'$set': {'tags':tags}})
+        
+        # Update name of a user
+        if 'name' in request.json:
+            #print request.json["name"], type(request.json["name"])
+            if type(request.json["name"]) != str and type(request.json["name"]) != unicode:
+                return {'message': 'Name type should by String'}, 400
+            dbClient[dbName]["curator"].find_one_and_update({'uid':g.user.username},{'$set': {'name':request.json["name"]}})
+        
+        # Update rating of a user
+        if 'rating' in request.json:
+            #print request.json["name"], type(request.json["name"])
+            if type(request.json["rating"]) != int:
+                return {'message': 'Rating type should by integer'}, 400
+            if request.json["rating"] > 5 or request.json["rating"] < 0:
+                return {'message': 'Rating should be between 0-5 only'}, 400
+            dbClient[dbName]["curator"].find_one_and_update({'uid':g.user.username},{'$set': {'rating':request.json["rating"]}})
+        
+        u = dbClient[dbName]["curator"].find_one({'uid':g.user.username},projection={'_id':False})
+        return {"username":u["uid"],"name":u["name"],"tags":getTags(dbClient,dbName,u),"rating":u["rating"]}
         
 # User Class definitio for SQLAlchemy object
 class User(usrdb.Model):
@@ -206,14 +245,23 @@ def register_user(username,password):
     print "Added user with username:",user.username," and id:",user.id
     location = url_for('get_user', id=user.id, _external=True)
     
-    # Link with curator creation in mongodb
+    # Add curator in mongodb. Name/tags/rating to be updated later with put request
+    addCurator(dbClient,dbName,{"uid":username,"name":"","tags":[],"rating":5})
+    
     #return {'status':201,'username':user.username,'Location': url_for('get_user', id=user.id, _external=True)}
-    return {'username':user.username,'Location': url_for('get_user', id=user.id, _external=True)}
+    return {'username':user.username,'Location': url_for('get_user', id=user.id, _external=True)},201
 
 @auth.login_required
 def login_user(duration):
     token = g.user.generate_auth_token(duration)
-    return jsonify({'token': token.decode('ascii'), 'duration (in seconds)': duration})
+    t = getTags(dbClient,dbName,dbClient[dbName]["curator"].find_one({'uid':g.user.username}))
+    
+    
+    u = dbClient[dbName]["curator"].find_one({'uid':g.user.username},projection={'_id':False})
+    u = {"username":u["uid"],"name":u["name"],"tags":getTags(dbClient,dbName,u),"rating":u["rating"]}
+    
+    #return jsonify('token':{'value': token.decode('ascii'), 'duration':duration},'user':u})
+    return {'token':{'value': token.decode('ascii'), 'duration':duration},'user':u}
     
 def createQuestionsFromPairs(jsonData):
     # dedupe sending just one pair
@@ -233,14 +281,14 @@ def createQuestionsFromPairs(jsonData):
         printDatabase(dbClient,dbName,"question")
         if decision != None:
             # Iterate over decision documts and send various comments and actual answer
-            output = {"aValue":[],"aComment":[]}
+            output = {"Value":[],"Comment":[]}
             for aid in decision:
                 a = dbClient[dbName]["answer"].find_one({'_id':ObjectId(aid)})
-                output["aValue"] = output["aValue"]+[a["value"]]
-                output["aComment"] = output["aComment"]+[a["comment"]]
+                output["Value"] = output["Value"]+[a["value"]]
+                output["Comment"] = output["Comment"]+[a["comment"]]
             return output
         else:
-            return {'status':"Question does not have human curated information yet."}
+            return {'message':"Question does not have human curated information yet."}
     
     # dedupe sending multiple pairs
     else:
@@ -263,25 +311,25 @@ def createQuestionsFromPairs(jsonData):
             printDatabase(dbClient,dbName,"question")
             if decision != None:
                 # Iterate over decision documts and send various comments and actual answer
-                output = {"aValue":[],"aComment":""}
+                output = {"Value":[],"Comment":""}
                 for aid in decision:
                     a = dbClient[dbName]["answer"].find_one({'_id':ObjectId(aid)})
-                    output["aValue"] = output["aValue"]+[a["value"]]
-                    output["aComment"] = output["aComment"]+[a["aComment"]]
+                    output["Value"] = output["Value"]+[a["value"]]
+                    output["Comment"] = output["Comment"]+[a["Comment"]]
                 bulkOutput = bulkOutput+[output]
             else:
-                bulkOutput = bulkOutput+[{'status':'Question does not have human curated information yet.'}]
+                bulkOutput = bulkOutput+[{'message':'Question does not have human curated information yet.'}]
         return bulkOutput
 
 @auth.login_required
 def getQuestionsForUser(jsonData):
 
     if jsonData == None:
-        count = 1
+        count = 10
         stats = False
     else: 
         if not 'bulk' in jsonData:
-            count = 1
+            count = 10
         else:
             count = jsonData['bulk']
         
