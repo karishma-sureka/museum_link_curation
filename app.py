@@ -295,16 +295,16 @@ def createQuestionsFromPairs(jsonData):
         
         decision = addOrUpdateQuestion(dbClient,dbName,uri1,uri2,dedupe)
         printDatabase(dbClient,dbName,"question")
+        
+        output = {"Value":[],"Comment":[]}
         if decision != None:
             # Iterate over decision documts and send various comments and actual answer
-            output = {"Value":[],"Comment":[]}
             for aid in decision:
                 a = dbClient[dbName]["answer"].find_one({'_id':ObjectId(aid)})
                 output["Value"] = output["Value"]+[a["value"]]
                 output["Comment"] = output["Comment"]+[a["comment"]]
-            return output
-        else:
-            return {'message':"Question does not have human curated information yet."}
+        
+        return output
     
     # dedupe sending multiple pairs
     else:
@@ -325,16 +325,17 @@ def createQuestionsFromPairs(jsonData):
             
             decision = addOrUpdateQuestion(dbClient,dbName,uri1,uri2,dedupe)
             printDatabase(dbClient,dbName,"question")
+            
+            output = {"Value":[],"Comment":[]}
             if decision != None:
                 # Iterate over decision documts and send various comments and actual answer
-                output = {"Value":[],"Comment":""}
                 for aid in decision:
                     a = dbClient[dbName]["answer"].find_one({'_id':ObjectId(aid)})
                     output["Value"] = output["Value"]+[a["value"]]
-                    output["Comment"] = output["Comment"]+[a["Comment"]]
-                bulkOutput = bulkOutput+[output]
+                    output["Comment"] = output["Comment"]+[a["comment"]]
+                    bulkOutput = bulkOutput+[output]
             else:
-                bulkOutput = bulkOutput+[{'message':'Question does not have human curated information yet.'}]
+                bulkOutput = bulkOutput+[output]
         return bulkOutput
 
 @auth.login_required

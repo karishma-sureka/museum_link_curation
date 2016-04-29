@@ -248,7 +248,10 @@ def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedupe):
     # If uuri exists, ignore dedupe as this request is coming second time, just return decision
     if q != None:
         print "Question instance already exists\n"
-        return q["decision"]
+        if q["decision"] == []:
+            return None
+        else:
+            return q["decision"]
     # Create new question and add dedupe information as well
     else:
         qe = {"status":1,
