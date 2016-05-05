@@ -46,7 +46,7 @@ def show_specs():
 def register_user():
     return render_template('register.html')
 
-@webapp.route('/user_profile')
+#@webapp.route('/user_profile')
 def show_user_profile():
     return render_template('userprofile.html')
 
