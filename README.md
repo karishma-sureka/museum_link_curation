@@ -1,27 +1,28 @@
 # museum_link_curation
 
-Setup Virtual Environment. Install flask and dependencies.
+1. Setup Virtual Environment for python 2.7.X.
 
-```
-pip install virtualenv
-virtualenv <env name>
+  ```
+  pip install virtualenv
+  virtualenv <env name>
 
-Unix/Mac OS : 
-source <env name>/bin/activate
+  Unix/Mac OS : 
+  source <env name>/bin/activate
 
-Windows:
-<env name>\scripts\activate
-```
-Install dependent python packages using following command
-```
-pip install -r packages.txt
-```
+  Windows:
+  <env name>\scripts\activate
+  ```
+2. Install dependent python packages using following command
+  ```
+  pip install -r packages.txt
+  ```
 
-Install mongodb and run the mongo server using mongod
-
-Run the application
-```
-python app.py
-```
-
-
+3. Install MongoDb and run the mongo server. (Ref: https://docs.mongodb.org/manual/installation/)
+  ```
+  mongod --dbpath <path to data directory>
+  ```
+  
+4. Run the application using following command
+  ```
+  python app.py
+  ```
