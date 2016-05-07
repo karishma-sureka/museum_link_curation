@@ -14,7 +14,7 @@ dname = "entityCuration"
 if testing:
     dbC = MongoClient('localhost', 27017)
 else:
-    dbClient = MongoClient('localhost', 12345)
+    dbC = MongoClient('localhost', 12345)
 
 # dbC and dname are mongoDb based database for entities and their curation data
 def mongo_init():
@@ -182,7 +182,7 @@ def populateQuestions():
 def populateQuestionsFromJSON(filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
-    count = data["bulk"]
+    count = data["count"]
     data = data["payload"]
     for i in range(0,count):
         pprint(data[i])

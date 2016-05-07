@@ -46,8 +46,10 @@ def show_curation():
 
 @app.route('/spec')
 def show_specs():
-    return render_template('spec.html')
-    
+    if testing:
+        return render_template('spec_testing.html')
+    else:
+        return render_template('spec.html')
 @app.route('/v1/spec')
 def show_specs_v1():
     return redirect(url_for("show_specs"))
