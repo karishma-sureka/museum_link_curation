@@ -9,9 +9,26 @@ from bson.objectid import ObjectId
 
 confedenceLevel = 2
 contrastLevel = 2
+testing = True
+dname = "entityCuration"
+if testing:
+    dbC = MongoClient('localhost', 27017)
+else:
+    dbClient = MongoClient('localhost', 12345)
 
+# dbC and dname are mongoDb based database for entities and their curation data
+def mongo_init():
+    if testing:
+        cleanDatabases()
+        createDatabase()
+        cleanDatabase("answer")
+    else:
+        if len(list(dbC[dname]["tag"].find())) == 0:
+            createDatabase()
+    #printDatabases()
+    
 # Print the database just to check current data
-def printDatabases(dbC,dname):
+def printDatabases():
     print "\nPrinting ",dname," if it exists"
     for cname in dbC[dname].collection_names(include_system_collections=False):
         print "\nPrinting Collection ",cname
@@ -20,26 +37,26 @@ def printDatabases(dbC,dname):
         print "\n"
 
 # Removes all the data from all tables of given database
-def cleanDatabases(dbC,dname):
-    print "\nDropping database",dname,"if it exists\n"
+def cleanDatabases():
+    print "\nDropping database",dname,"if it exists"
     for cname in dbC[dname].collection_names(include_system_collections=False):
-        print "\nDropping collection (aka database)",cname,"\n"
+        print "\nDropping collection (aka database)",cname
         for val in dbC[dname][cname].find():
             print "\nDropping: ",val
         dbC[dname][cname].delete_many({})
         dbC[dname][cname].drop()
     print "\n"
 
-# Clean particular Document from a Collection        
-def printDatabase(dbC,dname,docname):
+# Print particular Document from a Collection        
+def printDatabase(docname):
     print "\nPrinting Collection ",docname
     for val in dbC[dname][docname].find():
         print " \n", val
     print "\n"
     
 # Clean particular Document from a Collection
-def cleanDatabase(dbC,dname,docname):
-    print "\nDropping collection (aka database)",docname,"\n"
+def cleanDatabase(docname):
+    print "\nDropping collection (aka database)",docname
     for val in dbC[dname][docname].find():
         print "\nDropping: ",val
     dbC[dname][docname].delete_many({})
@@ -47,26 +64,32 @@ def cleanDatabase(dbC,dname,docname):
     print "\n"
             
 # Create database with default values for curation
-def createDatabase(dbC,dname):
-    populateTags(dbC,dname)
-    #populateCurators(dbC,dname)
+def createDatabase():
+    populateTags()
+    #populateCurators()
     
     ### Question (Pair of URIs) from different database
-    #populateQuestions(dbC,dname)
-    populateQuestionsFromCSV(dbC,dname, os.path.join('data', 'sample.csv'))
-    #populateQuestionsFromJSON(dbC,dname, os.path.join('data','questions.json'))
+    #populateQuestions()
+    
+    ### Question Pairs
+    if testing:
+        populateQuestionsFromCSV(os.path.join('data', 'sample.csv'))
+    else:
+        populateQuestionsFromJSON(os.path.join('data','questions_v2.json'))
     
     ### Entities from different database
-    populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','sample.json'))
-    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_architect.json'))
-    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','DBPedia_artist.json'))
-    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','NPG.json'))
-    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','SAAM.json'))
-    #populateEntitiesFromJSON(dbC,dname, os.path.join('data', 'entities','ULAN.json'))
-
+    if testing:
+        populateEntitiesFromJSON(os.path.join('data', 'entities','sample.json'))
+    else:
+        populateEntitiesFromJSON(os.path.join('data', 'entities','DBPedia_architect.json'))
+        populateEntitiesFromJSON(os.path.join('data', 'entities','DBPedia_artist.json'))
+        populateEntitiesFromJSON(os.path.join('data', 'entities','NPG.json'))
+        populateEntitiesFromJSON(os.path.join('data', 'entities','SAAM.json'))
+        populateEntitiesFromJSON(os.path.join('data', 'entities','ULAN.json'))
+    
 #Artists
     #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)
-def populateEntitiesFromJSON(dbC,dname,filename):
+def populateEntitiesFromJSON(filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
     # Change this range on actual server
@@ -78,7 +101,7 @@ def populateEntitiesFromJSON(dbC,dname,filename):
 #Tag
     #tagname, string 
 # Populate database with default tags
-def populateTags(dbC,dname):
+def populateTags():
     te = {"tagname":"autry"}
     dbC[dname]["tag"].insert_one(te)
     te = {"tagname":"dbpedia"}
@@ -100,7 +123,7 @@ def populateTags(dbC,dname):
     #tags, list of object IDs from Tags
     
 # Populate database with default curators
-def populateCurators(dbC,dname):
+def populateCurators():
     ce = {"uid":"nilayvac@usc.edu",
           "name":"Nilay Chheda",
           "tags":[dbC[dname]["tag"].find_one({'tagname':"ulan"})['_id'],
@@ -115,9 +138,10 @@ def populateCurators(dbC,dname):
     dbC[dname]["curator"].insert_one(ce)
 
 # Add the new curator from the client interface
-def addCurator(dbC, dname, ce):
-    dbC[dname]["curator"].insert_one(ce)
-    printDatabase(dbC,dname,"curator")
+def addCurator(ce):
+    status = dbC[dname]["curator"].insert_one(ce).acknowledged
+    if status:
+        print 'Added curator {}\n'.format(ce)
     
 # Question
     #status, integer: 1 - Not Started, 2 - In Progress, 3 - Completed, 4 - Disagreement
@@ -130,7 +154,7 @@ def addCurator(dbC, dname, ce):
     #dedupe , dict, data coming from dedupe 
     
 # Populate default set of questions
-def populateQuestions(dbC,dname):    
+def populateQuestions():    
     qe = {"status":1,
           "uniqueURI":generateUniqueURI("http://vocab.getty.edu/ulan/500028092","http://edan.si.edu/saam/id/person-institution/1681"),
           "lastSeen": datetime.datetime.utcnow(),
@@ -155,14 +179,12 @@ def populateQuestions(dbC,dname):
          }
     dbC[dname]["question"].insert_one(qe)
 
-def populateQuestionsFromJSON(dbC,dname,filename):
+def populateQuestionsFromJSON(filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
     count = data["bulk"]
     data = data["payload"]
-    # Change this range on actual server
     for i in range(0,count):
-    #for i in range(0,20):
         pprint(data[i])
         qe = {"status":1,
           "uniqueURI":generateUniqueURI(data[i]["uri1"],data[i]["uri2"]),
@@ -189,7 +211,7 @@ def findTag(uri):
         tag = "ulan"
     return tag
     
-def getTags(dbC,dname,entity):
+def getTags(entity):
     tags = []
     for tag in entity["tags"]:
         tags = tags + [dbC[dname]["tag"].find_one({'_id':ObjectId(tag)})["tagname"]]
@@ -224,7 +246,7 @@ def generateUniqueURI(uri1,uri2):
         return uri2+uri1
  
 # Populate default set of questions from csv file
-def populateQuestionsFromCSV(dbC,dname,csvfname):
+def populateQuestionsFromCSV(csvfname):
     with open(csvfname, 'rb') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',')
         for row in spamreader:
@@ -241,7 +263,7 @@ def populateQuestionsFromCSV(dbC,dname,csvfname):
                      }
                 dbC[dname]["question"].insert_one(qe)
         
-def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedupe):
+def addOrUpdateQuestion(uri1,uri2,dedupe):
     uuri = generateUniqueURI(uri1,uri2)
     q = dbC[dname]["question"].find_one({'uniqueURI':uuri})
     
@@ -264,11 +286,15 @@ def addOrUpdateQuestion(dbC,dname,uri1,uri2,dedupe):
                "decision": [], #Should be updated in submit answer
                "dedupe ": dedupe 
              }
-        dbC[dname]["question"].insert_one(qe)
+        status = dbC[dname]["question"].insert_one(qe).acknowledged
+        
+        if status:
+            print 'Added question {}\n'.format(qe)
+        
         return None
         
 # Retrieve set of questions from database based on tags, lastseen, unanswered vs in progress
-def getQuestionsForUID(dbC,dname,uid,count):
+def getQuestionsForUID(uid,count):
     # Filter-1: Find tags associated with uid and retrieve set of questions
     # Filter-2: Sort questions list based on status as InProgress or not started
     # Filter-3: Sort questions list whose status is NotStarted on maximum lastSeen 
@@ -279,7 +305,7 @@ def getQuestionsForUID(dbC,dname,uid,count):
     # Filter-4: Remove questions that are already served to this user based on uid as author in decision
     userOid = dbC[dname]["curator"].find_one({'uid':uid})['_id']
     if userOid == None:
-        print "User not found"
+        print "User not found. \n"
         return None
     
     #print "Found uid's objectID ",userOid
@@ -300,10 +326,19 @@ def getQuestionsForUID(dbC,dname,uid,count):
         if answered != True:
             q = q + [question]
     
+    # Append questions that are not started at the end
     for question in q1:
         q = q + [question]
         
-    #return = dbC[dname]["question"].find({"status":1},skip=randint(0,dbC[dname]["question"].count()-1),limit=count)
+    # Update lastSeen for all questions that are being returned
+    for question in q:
+        qid = question['_id']
+        dbC[dname]["question"].find_one_and_update(
+            {'_id':ObjectId(qid)},
+            {'$set': {'lastSeen':datetime.datetime.utcnow()}},
+            #projection={'_id':False,'status':True},
+            return_document=ReturnDocument.AFTER)
+            
     return q[:count]
         
 def getMatches(left,right):
@@ -331,38 +366,39 @@ def getMatches(left,right):
             unmatched["rValue"] = unmatched["rValue"]+[right[field]]
     return {"ExactMatch":exactMatch,"Unmatched":unmatched}
 
-def getStats(dbC,dname,q):
+def getStats(q):
     noNo = 0
     noYes = 0
     noNotSure = 0
     for aid in q['decision']:
         a = dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})
         if a != None:
-            if a["value"] == "1":
+            if a["value"] == 1:
                 noYes = noYes + 1
-            elif a["value"] == "2":
+            elif a["value"] == 2:
                 noNo = noNo + 1
-            elif a["value"] == "3":
+            elif a["value"] == 3:
                 noNotSure = noNotSure + 1
-                
+
+    #print 'Yes is {}, No is {}, Uncdecides is {} \n'.format(noNo,noYes,noNotSure)
     return {"Yes":noYes,"No":noNo,"Not Sure":noNotSure}
     
 #Answer
     #value, Integer value - 1 - Yes, 2 - No, 3 - Not Sure
     #comment, String optional 
     #author, String - uid of curator 
-def submitAnswer(dbC, dname, qid, answer, uid):
+def submitAnswer(qid, answer, uid):
     
     # from qid retrieve question 
     q = dbC[dname]["question"].find_one({'_id':ObjectId(qid)})
     
     if q == None:
         #print "Submit answer failed for qid: ", qid
-        message = "Question not found for qid: ",qid
+        message = "Question not found for qid: {}".format(qid)
         return {"status":False,"message":message}
     elif q['status'] == 3 or q['status'] == 4:
         #print "Question has already been answered by prescribed number of curators, qid: ", qid
-        message = "Predetermined number of curators have already answered question with qid: ", qid
+        message = "Predetermined number of curators have already answered question with qid {}".format(qid)
         return {"status":False,"message":message}
     else:
         #print "Found the question"
@@ -372,15 +408,14 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         for aid in q["decision"]:
             if dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})["author"] == uid:
                 #print "User has already submitted answer to question ", qid
-                message = "User has already submitted answer to question witg qid ", qid
+                message = "User has already submitted answer to question with qid {}".format(qid)
                 return {"status":False,"message":message}
         
-        # Add answer to database
-        a = dbC[dname]["answer"]
-        aid = a.insert_one(answer).inserted_id
-        #print "Inserted new answer with aid: ", aid
-        #print "answers ",a
-    
+        a = dbC[dname]["answer"].insert_one(answer)
+        aid = a.inserted_id
+        if a.acknowledged:
+            print 'Added answer {}\n'.format(answer)
+        
         # update decision with answer object id
         q['decision'] = q['decision']+[aid]
         #print "decision is: ", q['decision']
@@ -390,7 +425,7 @@ def submitAnswer(dbC, dname, qid, answer, uid):
         noNo = 0
         noNotSure = 0
         
-        #printDatabase(dbC,dname,"answer")
+        #printDatabase("answer")
         
         for aid in q['decision']:
             a = dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})
@@ -425,6 +460,6 @@ def submitAnswer(dbC, dname, qid, answer, uid):
             return_document=ReturnDocument.AFTER)
         
         
-        print "\n Updated question document \n",q
-        #printDatabase(dbC,dname,"answer")
+        print "Updated question document {}\n".format(q)
+        #printDatabase("answer")
         return {"status":True,"message":"Appended answer to question's decision list"}

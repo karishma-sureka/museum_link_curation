@@ -29,83 +29,15 @@ paths:
   ##############################################
   
   /user:
-  
-    ############################################## POST
-    
-    post:
-      summary: Register a new user
-      description: |
-        Create new user account for a curator
-        
-        Examples:
-        - curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"nilayvac@usc.edu","password":"linkCuration"}'
-        - curl -X POST http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"username":"ksureka@usc.edu","password":"linkCuration"}'
-      parameters:
-        - name: payload
-          in: body
-          description: Input Payload
-          required: true
-          schema:
-            $ref: '#/definitions/UserPostInputPayload'
-      tags:
-        - User
-      responses:
-        200:
-          description: Profile information for a user
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/UserPostOutputPayload'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-    
-    ############################################## GET
-    
-    get:
-      summary: Login existing user and get time bound API token
-      description: |
-        Authenticates user credentials and returns time sensitive API access token. This token can be used instead of credentials to access protected resources
-        
-        Examples:
-        - curl -X GET http://localhost:5000/v1/user -u nilayvac@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}' -u nilayvac@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/user -u ksureka@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"duration":3600}' -u ksureka@usc.edu:linkCuration
-      parameters:
-        - name: payload
-          in: body
-          description: Input Payload
-          required: true
-          schema:
-            $ref: '#/definitions/UserGetInputPayload'
-      tags:
-        - User
-      responses:
-        200:
-          description: Profile information of user along with token details
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/UserGetOutputPayload'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-    
-    ############################################## PUT
     
     put:
       summary: Update user profile 
       description: |
-        Update user profile details like name of the user, tags and rating. User Authentication required to access this API. At least one of the three paraneters is required
+        Update user profile details like name of the user, tags and rating. At least one sub-paraneter is required. User needs to be logged in to access this API
         
         Exampls:
-        - curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Nilay Chheda","rating":5,"tags":["saam","ulan"]}' -u nilayvac@usc.edu:linkCuration
-        - curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Nilay Chheda","rating":5,"tags":["saam","ulan"]}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x
-        - curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Karishma Sureka","rating":5,"tags":["dbpedia","npg"]}' -u ksureka@usc.edu:linkCuration
-        - curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Karishma Sureka","rating":5,"tags":["dbpedia","npg"]}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x
+        - curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Nilay Chheda","rating":5,"tags":["saam","ulan"]}'
+        - curl -X PUT http://localhost:5000/v1/user -H "Content-Type: application/json" -d '{"name":"Karishma Sureka","rating":5,"tags":["dbpedia","npg"]}' 
         
       parameters:
         - name: payload
@@ -118,7 +50,7 @@ paths:
         - User
       responses:
         200:
-          description: Profile information of user along with token details
+          description: Updated profile information of user
           schema:
             type: array
             items:
@@ -137,30 +69,32 @@ paths:
     ############################################## GET
   
     get:
-      summary: Serve relevant questions from database
+      summary: Retrieve relevant questions from database
       description: |
-        This Question endpoint returns set of questions to client based on different paraneters associated 
-        with the user and user's previous history. User Authentication required to access this API
+        This API retrieves and returns question(s) relevant to user based on user history and parameters. User needs to be logged in to access this API.
         
         Examples: 
-        - curl -X GET http://localhost:5000/v1/question -u nilayvac@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"stats":"True"}' -u nilayvac@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10}' -u nilayvac@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10,"stats":"True"}' -u nilayvac@usc.edu:linkCuration
-        - curl -X GET http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":10,"stats":"True"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x
+        - curl -X GET http://localhost:5000/v1/question?stats=True&count=20
+        - curl -X GET http://localhost:5000/v1/question?stats=True
+        - curl -X GET http://localhost:5000/v1/question?stats=count=20
         
       parameters:
-        - name: payload
-          in: body
-          description: Input Payload
-          required: true
-          schema:
-            $ref: '#/definitions/QuestionGetInputPayload'
+        - name: stats
+          in: query
+          description: Flag to request question stastics in the response.
+          required: false
+          type: boolean
+        - name: count
+          in: query
+          description: Number of questions to be retrieved. Default is 10
+          required: false
+          type: integer
+          format: int32
       tags:
         - Question
       responses:
         200:
-          description: An array of questions
+          description: An array of questions.
           schema:
             type: array
             items:
@@ -172,14 +106,13 @@ paths:
             
     ############################################## POST
     post:
-      summary: Create new question(s) (aka pair(s)) in the database
+      summary: Create new question(s) in the database
       description: |
-        This Question endpoint allows external software entity like dedupe to create new questions. No authentication required. 
+        This API is used by external software entity like dedupe to create new questions and post it to the database.
         
         Examples:
-        - curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"uri1":"http://vocab.getty.edu/ulan/50001234","uri2":"http://edan.si.edu/saam/id/person-institution/1234","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}}'
-        - curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":count n,"payload":[{},{},... n entries]}'
-        - curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"bulk":2,"payload":[{"uri1":"http://vocab.getty.edu/ulan/50002345","uri2":"http://edan.si.edu/saam/id/person-institution/2345","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}},{"uri1":"http://vocab.getty.edu/ulan/50003456","uri2":"http://edan.si.edu/saam/id/person-institution/3456","dedupe":{"ver":"1.0","revision":"4","score":"0.85"}}]}'
+        - curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"count":1,"payload": [{"uri1":"http://vocab.getty.edu/ulan/50001234","uri2":"http://edan.si.edu/saam/id/person-institution/1234","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}}] }'
+        - curl -X POST http://localhost:5000/v1/question -H "Content-Type: application/json" -d '{"count":2,"payload":[{"uri1":"http://vocab.getty.edu/ulan/50002345","uri2":"http://edan.si.edu/saam/id/person-institution/2345","dedupe":{"ver":"1.0","revision":"4","score":"0.45"}},{"uri1":"http://vocab.getty.edu/ulan/50003456","uri2":"http://edan.si.edu/saam/id/person-institution/3456","dedupe":{"ver":"1.0","revision":"4","score":"0.85"}}]}'
         
       parameters:
         - name: payload
@@ -193,7 +126,7 @@ paths:
         - Question
       responses:
         200:
-          description: Curation interface data about Question(s)
+          description: Answers submitted by human curators for Question(s)
           schema:
             type: array
             items:
@@ -214,13 +147,12 @@ paths:
     put:
       summary: Submit an answer
       description: |
-        Submit human curated answer related to a question. User Authentication required to access this API.
+        Submit human curated answer for a question. Only comment field is optional. User needs to be logged in to access this API.
         
         Examples:
-        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u nilayvac@usc.edu:linkCuration
-        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eec1df6bf2d1e58a88479"}' -u ksureka@usc.edu:linkCuration
-        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eeba7f6bf2d1e58a88471"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTQ4MSwiaWF0IjoxNDYwNTk1ODgxfQ.eyJpZCI6MX0.PyLZSP7q0iWh-n1yazz8p23kO3cUJtmQbGucjvTYtOg:x
-        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"value":"1","comment":"Just another comment","qid":"570eeba7f6bf2d1e58a88471"}' -u eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ2MDU5OTUxNCwiaWF0IjoxNDYwNTk1OTE0fQ.eyJpZCI6Mn0.FSoeJkqaV1Zlc1XjDu5fcI3fmRSHD1OMhm-M8sKOHE8:x
+        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"qid":"570eec1df6bf2d1e58a88477","value":"1","comment":"Yes left and right entities match."}'
+        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"qid":"570eec1df6bf2d1e58a88476",value":"2","comment":"No left and right entities do not match"}' 
+        - curl -X PUT http://localhost:5000/v1/answer -H "Content-Type: application/json" -d '{"qid":"570eec1df6bf2d1e58a88475","value":"3","comment":"I am not sure if left and right entities match"}'
       
       parameters:
         - name: payload
@@ -246,75 +178,6 @@ paths:
 ##############################################
 
 definitions:
-
-##############################################
-
-  UserPostInputPayload:
-    properties:
-      username:
-        type: string
-        description: Username of a user
-      password:
-        type: string
-        description: Password of a user
-
-  UserPostOutputPayload:
-    properties:
-      Location:
-        type: string
-        description: Unique url endpoint for a user
-      Username:
-        type: string
-        description: Username that was registered
-
-##############################################
-
-  UserGetInputPayload:
-    properties:
-      duration:
-        type: integer
-        format: int32
-        description: Access token validation in seconds. Default is 10 minutes
-
-  UserGetOutputPayload:
-    properties:
-      User:
-        type: array
-        items:
-          $ref: '#/definitions/User'
-      Token:
-        type: array
-        items:
-          $ref: '#/definitions/Token'
-          
-  User:
-    properties:
-      name:
-        type: string
-        description: Name of the user
-      rating:
-        type: integer
-        format: int32
-        description: User rating from 0-5.
-      tags:
-        type: array
-        description: Array of Tags associated with the user
-        items:
-          type: string
-          description: Tag name. Currently supporteda are, "autry", "dbpedia","npg","saam","ulan","viaf"
-      username:
-        type: string
-        description: Username of the user
-  
-  Token:
-    properties:
-      duration:
-        type: integer
-        format: int32
-        description: Token validity in seconds
-      value:
-        type: string
-        description: Alphanumeric value of a token
 
 ##############################################
 
@@ -407,27 +270,30 @@ definitions:
 
   QuestionPostInputPayload:
     properties:
-      uri1:
-        type: string
-        description: One of the URI of a pair of URI. Ordering does not matter. Used only for non-bulk reqeust.
-      uri2:
-        type: string
-        description: The other URI of a pair of URI. Ordering does not matter. Used only for non-bulk reqeust.
-      dedeupe:
-        type: array
-        description: List of annotations generated from dedupe. Used only for non-bulk reqeust.
-        items:
-          $ref: '#/definitions/dedupe'
-      bulk:
+      count:
         type: integer
         format: int32
-        description: Indicates a bulk request and number of questions sent in a request. Used only for a bulk request and payload array of size = bulk is expected as well.
+        description: Number of questions to be added.
       payload:
         type: array
-        description: List of annotations generated from dedupe. Used only for non-bulk reqeust.
+        description: List of questions to be added.
         items:
           $ref: '#/definitions/questionPayload'
   
+  questionPayload:
+    properties:
+      uri1:
+        type: string
+        description: One of the URI of a pair of URI. Ordering does not matter.
+      uri2:
+        type: string
+        description: The other URI of a pair of URI. Ordering does not matter.
+      dedeupe:
+        type: array
+        description: List of annotations generated from dedupe. 
+        items:
+          $ref: '#/definitions/dedupe'
+          
   dedupe:
     properties:
       fields:
@@ -442,20 +308,6 @@ definitions:
       linkScore:
         type: string
         description: linkScore computed by dedupe for this question
-  
-  questionPayload:
-    properties:
-      uri1:
-        type: string
-        description: One of the URI of a pair of URI. Ordering does not matter. Used only for non-bulk reqeust.
-      uri2:
-        type: string
-        description: The other URI of a pair of URI. Ordering does not matter. Used only for non-bulk reqeust.
-      dedeupe:
-        type: array
-        description: List of annotations generated from dedupe. Used only for non-bulk reqeust.
-        items:
-          $ref: '#/definitions/dedupe'
           
   QuestionPostOutputPayload:
     properties:
@@ -481,13 +333,13 @@ definitions:
       qid:
         type: string
         description: qid of a question being answered
-      comment:
-        type: string
-        description: Comment related to decision
       value:
         type: integer
         format: int32
         description: Decision value from 1 to 3
+      comment:
+        type: string
+        description: Comment related to decision
         
   AnswerPutOutputPayload:
     properties:
@@ -501,5 +353,5 @@ definitions:
     properties:
       message:
         type: string
-        description: Message related to error.
+        description: Error description
         
