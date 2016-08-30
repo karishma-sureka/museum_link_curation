@@ -43,7 +43,7 @@ class FacebookSignIn(OAuthSignIn):
             client_secret=self.consumer_secret,
             authorize_url='https://graph.facebook.com/oauth/authorize',
             access_token_url='https://graph.facebook.com/oauth/access_token',
-            base_url='https://graph.facebook.com/v2.6'
+            base_url='https://graph.facebook.com/v2.7'
         )
 
     def authorize(self):

@@ -1,7 +1,6 @@
 import os, sys
 
 sys.dont_write_bytecode = True
-
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user,current_user
@@ -24,12 +23,22 @@ lm.login_view = 'index'
 lm.session_protection = 'strong'
 app.config['SECRET_KEY'] = 'top secret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-app.config['OAUTH_CREDENTIALS'] = {
-    'facebook': {
-        'id': '621200901380211',
-        'secret': '0afb04701e956a3cf74ac876560e7041'
+
+if devmode:
+    app.config['OAUTH_CREDENTIALS'] = {
+        'facebook': {
+            'id': '622058264638304',
+            'secret': '56bba85a0bef4cae8d07537701bbfe1f'
+        }
     }
-}
+else:
+    app.config['OAUTH_CREDENTIALS'] = {
+        'facebook': {
+            'id': '621200901380211',
+            'secret': '0afb04701e956a3cf74ac876560e7041'
+        }
+    }
+
 
 @app.route('/')
 def index():
