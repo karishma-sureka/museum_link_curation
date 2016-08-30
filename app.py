@@ -2,7 +2,6 @@ import os, sys
 
 sys.dont_write_bytecode = True
 
-from flask import Flask, render_template, request, url_for, jsonify, redirect, flash, jsonify
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user,current_user
@@ -10,9 +9,10 @@ from oauth import OAuthSignIn
 from pprint import pprint
 from config import *
 from dbMgr import *
+from ui import *
 
 # Flask App instance
-app = Flask(__name__)
+#app = Flask(__name__)
 
 # restful, usrdb and login_manager instance
 api = Api(app)
@@ -61,11 +61,15 @@ def show_specs_v1():
         return render_template('spec_testing.html')
     else:
         return render_template('spec.html')
-    
+
+@app.route('/profile')
+def show_user_profile():
+    return render_template('profile.html')
+
 @app.route('/user')
 def redirectUser():
     return redirect(url_for("user"))
-    
+
 @app.route('/question')
 def redirectQuestion():
     return redirect(url_for("question"))

@@ -22,11 +22,11 @@ body {   font-family: Helvetica, san-serif;
     left: 0;
     float:right;
     margin-right: 1.5%;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     overflow: hidden;
     position: relative;
     right: 0;
-    top: 10px;
+    top: 2px;
     width: 65%;
 }
 .questionarea{
@@ -42,7 +42,7 @@ body {   font-family: Helvetica, san-serif;
 }
 .card:hover .cta-container {
     display: inline;
-    margin-top: 18%;
+    margin-top: 12%;
 }
 .card:hover .card_circle {
     background-size: cover;
@@ -52,10 +52,10 @@ body {   font-family: Helvetica, san-serif;
 .card:hover h2 {
     background: #3487f7;
     color: #fff;
-    margin-top: 5%;
+    margin-top: 1%;
 }
 .card:hover h2 small { color: #fff }
-.card:hover p { margin-top: 10% }
+.card:hover p { margin-top: 0% }
 .card_circle {
     background-color: #3487f7;
     background-size: cover;
@@ -69,7 +69,7 @@ body {   font-family: Helvetica, san-serif;
 h2 {
     color: #3487f7;
     font-family: 'Raleway', sans-serif;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 200;
     margin-top: 150px;
     position: absolute;
@@ -108,9 +108,9 @@ p {
     color: #fff;
     display: inline-block;
     font-family: 'Raleway', sans-serif;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 400;
-    height: 36px;
+    height: 30px;
     letter-spacing: 0.5px;
     line-height: 36px;
     margin-bottom: 15px;
@@ -194,4 +194,8 @@ p {
 
 .close{
     margin-right: 1%;
+}
+
+.form_style{
+    margin:auto;
 }

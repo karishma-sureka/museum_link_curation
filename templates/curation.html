@@ -6,28 +6,115 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
-            $("#zero").find("a").click(function(){
+
+           $(".close").click(function(){
                 $("#zero").css("display", "none");
-            });
-            $("#one").find("a").click(function(){
-                $("#one").css("display", "none");
-            });
-            $("#two").find("a").click(function(){
-                $("#two").css("display", "none");
-            });
-            $("#three").find("a").click(function(){
-                $("#three").css("display", "none");
-            });
-            $("#four").find("a").click(function(){
-                $("#four").css("display", "none");
             });
 
-            $(".close").click(function(){
-                $("#zero").css("display", "none");
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:5000/v1/question?bulk=10&stats=True",
+                success: function(data){
+                    populate(data)
+                }
             });
 
         });
-    </script>
+
+        function populateExactMatch(data, i) {
+            console.log(data);
+            var content = document.getElementById("exactMatch");
+            console.log(content);
+            var tr = "";
+            var names = data.name;
+            var values = data.value;
+            if(names.length == 0){
+                tr += "<td>None of the records matched</td>";
+            }
+            for(var index in names) {
+                tr += "<tr>"
+                nametrim = names[index].replace("schema:",'');
+                // handle diff cases for lValue and rValue name types
+
+                if(names[index] == "schema:birthPlace") {
+                    tr += "<td>Name: " + values[index]['schema:name'] + "</td>";
+                }
+                 else if(nametrim == "URI"){
+                    tr += "<td><a target='_blank' href='" + values[index] + "'>" + lValues[index] + "</a></td>";
+                }
+                else {
+                    if(nametrim == "name"){
+                        var name_header = document.getElementById("name_header");
+                        name_header.innerHTML = values[index];
+                    }
+                    tr += "<td>" + values[index] + "</td>";
+                }
+                tr += "</tr>";
+            }
+            content.innerHTML = tr;
+            console.log(tr);
+        }
+
+        function populateNoMatch(data, i) {
+            var content = document.getElementById("noMatch");
+            console.log(content);
+            var names = data.name;
+            var lValues = data.lValue;
+            var rValues = data.rValue;
+
+            // not sure which one is ulan and samm, switch lValue and rValue if need be
+            var tr = "";
+            for(var index in names) {
+
+                tr += "<tr>"
+                nametrim = names[index].replace("schema:",'');
+                tr += "<td>" + nametrim + "</td>";
+                // handle diff cases for lValue and rValue name types
+
+                if(names[index] == "schema:birthPlace") {
+                    tr += "<td>Name: " + lValues[index]['schema:name'] + "</td>";
+                    tr += "<td>Geo: Lat: " + rValues[index]['schema:geo']['schema:latitude'] + " Long: " + rValues[index]['schema:geo']['schema:longitude']+  "<br/>Name: " + rValues[index]['schema:name'] + "</td>";
+                }
+                 else if(nametrim == "URI"){
+                    tr += "<td><a target='_blank' href='" + lValues[index] + "'>" + lValues[index] + "</a></td>";
+                    tr += "<td><a target='_blank' href='" + rValues[index] + "'>" + rValues[index] + "</a></td>";
+                }
+                else {
+                // default case
+                    if(nametrim == "name"){
+                        var name_header = document.getElementById("name_header");
+                        name_header.innerHTML = lValues[index] + ", " + rValues[index];
+                    }
+
+                    if(lValues[index] == null)
+                        tr += "<td>" + "-" + "</td>";
+                    else
+                        tr += "<td>" + lValues[index] + "</td>";
+                    if(rValues[index] == null)
+                        tr += "<td>" + "-" + "</td>";
+                    else
+                        tr += "<td>" + rValues[index] + "</td>";
+                }
+                tr += "</tr>";
+            }
+            content.innerHTML = tr;
+            console.log(tr);
+        }
+
+        function populate(data) {
+            console.log(data.length);
+            for(i = 0; i < data.length; i++) {
+                var cardholder = document.getElementById("cards");
+                cardholder.innerHTML = "<div id = '" + i + "'class='card transition block'> <div> <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button> <h2 id='name_header' class='transition'></h2> <p style = 'text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;'></p> </div> <div class='cta-container transition'> <div class='questionarea'> <div class='modal-body'> <table class='table table-hover'> <thead> <tr> <th>Values that Match</th> <th>SAAM, ULAN</th> </tr> </thead> <tbody class = 'exactMatch' id = 'exactMatch'> </tbody> </table> <table class='table table-hover'> <thead> <tr> <th>Values that do not match</th> <th>SAAM</th> <th>ULAN</th> </tr> </thead> <tbody id = 'noMatch'> </tbody> </table> </div> </div><div style='margin:auto;'><table class='form_style'><tr><td><form action='/user/answer/yes' method='POST' ><button name='yes'class='cta green-btn'>Yes</button></form></td><td><form action='/user/answer/no' method='POST' ><button name='yes'class='cta red-btn'>No</button></form></td> <td> <form action='/user/answer/notsure' method='POST' ><button name='yes'class='cta yellow-btn'>Notsure</button></form></td></tr> </table></div></div> </div>"
+                console.log(cardholder.innerHTML)
+            }
+            for(i = 0; i < data.length; i++) {
+                populateExactMatch(data[i].ExactMatch, i);
+                populateNoMatch(data[i].Unmatched, i);
+            }
+        }
+
+</script>
 </head>
 <div class="page">
 <div class="filter-section">
@@ -50,319 +137,7 @@
     </button>
     </div>
 </div>
-    <div class="cards">
-        <div id = "zero" class="card transition block">
-	<div>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h2 class="transition">Arnold Aaron Friedman</h2>
-        <div class="progress">
-          <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 90%">
-            <span class="sr-only">90% Complete (success)</span>
-          </div>
-            <div class="progress-bar progress-bar-danger progress-bar-striped" style="width: 5%">
-            <span class="sr-only">5% Complete (danger)</span>
-            </div>
-          <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 5%">
-            <span class="sr-only">5% Complete (warning)</span>
-        </div>
-</div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">American painter and lithographer, 1879-1946</p>
-	</div>
-	<div class="cta-container transition">
-		<div class="questionarea">
-			<div class="modal-body">
-				<table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Values that Match</th>
-                      <th>ULAN, SAAM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                      <td>Last Name, First Name<br/>Birth<br/>Death<br/>Gender<br/>Description</td>
-                      <td>Friedman, Arnold Aaron<br/>1879<br/>1946<br/>Male<br/>American painter and lithographer, 1879-1946</td>
-                    </tr>
-                  </tbody>
-                </table>
-              <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Values that do not match</th>
-                      <th>ULAN</th>
-                      <th>SAAM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Birth Place</td>
-                        <td>New York</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                      <td>Nationality</td>
-                        <td>-</td>
-                        <td>American (North American)</td>
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
-		</div>
-        <form>
-            <div>
-                    <textarea class="form-control" style = "width:98%; margin-left:1%; margin-right:1%;" rows="4" id="comment" placeholder="Comments (optional)"></textarea>
-            </div>
-        </form>
-		<a href="#" class="cta green-btn">Yes</a>
-		<a href="#" class="cta red-btn">No</a>
-		<a href="#" class="cta yellow-btn">Not Sure</a>
-	</div>
-</div>
-<div id = "one" class="card transition block">
-	<div>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h2 class="transition">Leonardo da Vinci</h2>
-        <div class="progress">
-          <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 55%">
-            <span class="sr-only">55% Complete (success)</span>
-          </div>
-            <div class="progress-bar progress-bar-danger progress-bar-striped" style="width: 15%">
-            <span class="sr-only">15% Complete (danger)</span>
-            </div>
-          <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 30%">
-            <span class="sr-only">30% Complete (warning)</span>
-        </div>
-</div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">April 15, 1452, Anchiano | May 2, 1519, Amboise, France | Mona Lisa | The Last Supper</p>
-	</div>
-	<div class="cta-container transition">
-		<div class="questionarea">
-			<div class="modal-body">
-				<table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Match</th>
-                      <th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                      <td>Name<br/>Birth<br/>Death<br/>Art</td>
-                      <td>Leonardo da Vinci<br/>April 15, 1452, Anchiano<br/>May 2, 1519, Amboise, France<br/>Mona Lisa, The Last Supper</td>
-                    </tr> 
-                  </tbody>
-                </table>
-              <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Mismatch</th>
-                      <th>ULAN</th>
-                      <th>SAAM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Artwork</td>
-                        <td>The Virgin and child with St. Anne
-                        <td>The Virgin and child</td>
-                    </tr>
-                    <tr>
-                      <td>Artwork</td>
-                        <td>Annunciation </td>
-                        <td>(Annunciazione)</td>
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
-		</div>
-		<a href="#" class="cta green-btn" onclick="">Yes</a>
-		<a href="#" class="cta red-btn">No</a>
-		<a href="#" class="cta yellow-btn">Not Sure</a>
-	</div>
-</div>
+<div class="cards" id = "cards">
 
-<div id="two" class="card transition block">
-	<div>
-		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h2 class="transition">Vincent Van Gogh</h2>
-        <div class="progress">
-          <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 95%">
-            <span class="sr-only">95% Complete (success)</span>
-          </div>
-            <div class="progress-bar progress-bar-danger progress-bar-striped" style="width: 5%">
-            <span class="sr-only">5% Complete (danger)</span>
-            </div>
-          <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 0%">
-            <span class="sr-only">0% Complete (warning)</span>
-        </div>
-            </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">March 30, 1853, Zundert, Netherlands | July 29, 1890, Auvers-sur-Oise, France | The Starry Night | Irises</p>
-	</div>
-	<div class="cta-container transition">
-		<div class="questionarea">
-			<div class="modal-body">
-				<table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Match</th>
-                      <th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                      <td>Name<br/>Birth<br/>Death<br/>Art</td>
-                      <td>Vincent Van Gogh<br/>March 30, 1853, Zundert, Netherlands<br/>July 29, 1890, Auvers-sur-Oise, France<br/>The Starry Night, Irises</td>
-                    </tr> 
-                  </tbody>
-                </table>
-              <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Mismatch</th>
-                      <th>ULAN</th>
-                      <th>SAAM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Artwork</td>
-                        <td>The Rocky Mountains, Lander's peak <br/> The Last of the Buffalo</td>
-                        <td>The Rocky Mountains <br/> The Last of the Buffalo</td>
-                    </tr>
-                    <tr>
-                      <td>Artwork2</td>
-                        <td>The Rocky Mountains, Lander's peak <br/> The Last of the Buffalo</td>
-                        <td>The Rocky Mountains <br/> The Last of the Buffalo</td>
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
-		</div>
-		<a href="#" class="cta green-btn">Yes</a>
-		<a href="#" class="cta red-btn">No</a>
-		<a href="#" class="cta yellow-btn">Not Sure</a></div>
 </div>
-
-<div id="three" class="card transition block">
-	<div>
-		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h2 class="transition">Rembrandt</h2>
-        <div class="progress">
-          <div class="progress-bar progress-bar-success progress-bar-striped" style="width: 85%">
-            <span class="sr-only">85% Complete (success)</span>
-          </div>
-            <div class="progress-bar progress-bar-danger progress-bar-striped" style="width: 0%">
-            <span class="sr-only">0% Complete (danger)</span>
-            </div>
-          <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 15%">
-            <span class="sr-only">15% Complete (warning)</span>
-        </div>
-            </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;">July 15, 1606, Leiden, Netherlands | October 4, 1669, Amsterdam, Netherlands | The Night Watch | The Storm on the Sea of Galilee</p>
-	</div>
-	<div class="cta-container transition"><div class="questionarea">
-			<div class="modal-body">
-				<table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Match</th>
-                      <th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                      <td>Name<br/>Birth<br/>Death<br/>Art</td>
-                      <td>Rembrandt<br/>July 15, 1606, Leiden, Netherlands<br/>October 4, 1669, Amsterdam, Netherlands<br/>The Night Watch, The Storm on the Sea of Galilee</td>
-                    </tr>
-                  </tbody>
-                </table>
-              <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Mismatch</th>
-                      <th>ULAN</th>
-                      <th>SAAM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Artwork</td>
-                        <td>The Rocky Mountains, Lander's peak <br/> The Last of the Buffalo</td>
-                        <td>The Rocky Mountains <br/> The Last of the Buffalo</td>
-                    </tr>
-                    <tr>
-                      <td>Artwork2</td>
-                        <td>The Rocky Mountains, Lander's peak <br/> The Last of the Buffalo</td>
-                        <td>The Rocky Mountains <br/> The Last of the Buffalo</td>
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
-		</div>
-		<a href="#" class="cta green-btn">Yes</a>
-		<a href="#" class="cta red-btn">No</a>
-		<a href="#" class="cta yellow-btn">Not Sure</a></div>
 </div>
-
-<div id="four" class="card transition block">
-	<div>
-		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h2 class="transition">Michelangelo</h2>
-        <div class="progress">
-          <div class="progress-bar progress-bar-grey progress-bar-striped" style="width: 100%">
-            <span class="sr-only">100% Complete (success)</span>
-          </div>
-            <div class="progress-bar progress-bar-danger progress-bar-striped" style="width: 0%">
-            <span class="sr-only">0% Complete (danger)</span>
-            </div>
-          <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 0%">
-            <span class="sr-only">0% Complete (warning)</span>
-        </div>
-        </div>
-		<p style = "text-align: center; margin-left: 10%; margin-right: 10%; width: 80%;  margin-top:10%;">March 6, 1475, Caprese Michelangelo, Italy | February 18, 1564, Rome, Italy | Sistine Chapel ceiling | David</p>
-	</div>
-	<div class="cta-container transition"><div class="questionarea">
-			<div class="modal-body">
-				<table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Match</th>
-                      <th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                      <td>Name<br/>Birth<br/>Death<br/>Art</td>
-                      <td>Michelangelo<br/>March 6, 1475, Caprese Michelangelo, Italy<br/>February 18, 1564, Rome, Italy<br/>Sistine Chapel ceiling, David</td>
-                    </tr>
-                  </tbody>
-                </table>
-              <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property Mismatch</th>
-                      <th>ULAN</th>
-                      <th>SAAM</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Artwork</td>
-                        <td>The Rocky Mountains, Lander's peak <br/> The Last of the Buffalo</td>
-                        <td>The Rocky Mountains <br/> The Last of the Buffalo</td>
-                    </tr>
-                    <tr>
-                      <td>Artwork2</td>
-                        <td>The Rocky Mountains, Lander's peak <br/> The Last of the Buffalo</td>
-                        <td>The Rocky Mountains <br/> The Last of the Buffalo</td>
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
-		</div>
-		<a href="#" class="cta green-btn">Yes</a>
-		<a href="#" class="cta red-btn">No</a>
-		<a href="#" class="cta yellow-btn">Not Sure</a></div>
-</div>
-        </div>
-    </div>
