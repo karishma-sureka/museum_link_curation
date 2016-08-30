@@ -1,6 +1,7 @@
 from rauth import OAuth1Service, OAuth2Service
 from flask import current_app, url_for, request, redirect, session
 from pprint import pprint
+from config import *
 
 class OAuthSignIn(object):
     providers = None
@@ -18,9 +19,8 @@ class OAuthSignIn(object):
         pass
 
     def get_callback_url(self):
-        if testing:
-            return url_for('oauth_callback', provider=self.provider_name,
-                       _external=True)
+        if devmode:
+            return url_for('oauth_callback', provider=self.provider_name,_external=True)
         else:
             return 'http://52.37.251.245:80/callback/facebook'
 

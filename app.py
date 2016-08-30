@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user,current_user
 from oauth import OAuthSignIn
 from pprint import pprint
+from config import *
 from dbMgr import *
 
 # Flask App instance
@@ -331,7 +332,7 @@ if __name__ == '__main__':
     mongo_init()
     
     # Start the app
-    if devmode:
+    if devmode: 
         app.run(debug=True)
     else:
         app.run(debug=False)

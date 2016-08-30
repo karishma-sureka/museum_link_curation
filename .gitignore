@@ -1,0 +1,6 @@
+data/entities/
+flask-backend/
+__pycache__/
+server/
+data/viaf.zip
+db.sqlite

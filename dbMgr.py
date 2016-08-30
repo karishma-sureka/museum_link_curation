@@ -6,10 +6,10 @@ import os
 from pprint import pprint
 from pymongo import MongoClient, ReturnDocument, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
+from config import *
 
 confedenceLevel = 2
 contrastLevel = 2
-devmode = True
 dname = "entityCuration"
 if devmode:
     dbC = MongoClient('localhost', 27017)
