@@ -1,4 +1,7 @@
-import os
+import os, sys
+
+sys.dont_write_bytecode = True
+
 from flask import Flask, render_template, request, url_for, jsonify, redirect, flash, jsonify
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
@@ -46,13 +49,17 @@ def show_curation():
 
 @app.route('/spec')
 def show_specs():
-    if testing:
+    if devmode:
         return render_template('spec_testing.html')
     else:
         return render_template('spec.html')
+        
 @app.route('/v1/spec')
 def show_specs_v1():
-    return redirect(url_for("show_specs"))
+    if devmode:
+        return render_template('spec_testing.html')
+    else:
+        return render_template('spec.html')
     
 @app.route('/user')
 def redirectUser():
@@ -244,11 +251,11 @@ def createQuestionsFromPairs(jsonData):
         payload = jsonData['payload'][i]
         #print "\n Processing payload: ",payload
         if not 'uri1' in payload:
-            return {'message': 'uri1 not provided with ther request'}, 400
+            return {'message': 'uri1 not provided with the request'}, 400
         if not 'uri2' in payload:
-            return {'message': 'uri2 not provided with ther request'}, 400
+            return {'message': 'uri2 not provided with the request'}, 400
         if not 'dedupe' in payload:
-            return {'message': 'dedupe not provided with ther request'}, 400
+            return {'message': 'dedupe not provided with the request'}, 400
         
         uri1 = payload['uri1']
         uri2 = payload['uri2']
@@ -259,7 +266,7 @@ def createQuestionsFromPairs(jsonData):
         
         output = {"Value":[],"Comment":[]}
         if decision != None:
-            # Iterate over decision documts and send various comments and actual answer
+            # Iterate over decision documents and send various comments and actual answer
             for aid in decision:
                 a = dbC[dname]["answer"].find_one({'_id':ObjectId(aid)})
                 output["Value"] = output["Value"]+[a["value"]]
@@ -314,7 +321,7 @@ def getQuestionsForUser(count,stats):
 if __name__ == '__main__':
     
     # usrdb is SQLite database for registered user and session management
-    if testing:
+    if devmode:
         usrdb.drop_all()
         usrdb.create_all()
     else:
@@ -324,7 +331,7 @@ if __name__ == '__main__':
     mongo_init()
     
     # Start the app
-    if testing:
+    if devmode:
         app.run(debug=True)
     else:
         app.run(debug=False)

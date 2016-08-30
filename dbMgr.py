@@ -9,16 +9,16 @@ from bson.objectid import ObjectId
 
 confedenceLevel = 2
 contrastLevel = 2
-testing = True
+devmode = True
 dname = "entityCuration"
-if testing:
+if devmode:
     dbC = MongoClient('localhost', 27017)
 else:
     dbC = MongoClient('localhost', 12345)
 
 # dbC and dname are mongoDb based database for entities and their curation data
 def mongo_init():
-    if testing:
+    if devmode:
         cleanDatabases()
         createDatabase()
         cleanDatabase("answer")
@@ -72,13 +72,13 @@ def createDatabase():
     #populateQuestions()
     
     ### Question Pairs
-    if testing:
+    if devmode:
         populateQuestionsFromCSV(os.path.join('data', 'sample.csv'))
     else:
         populateQuestionsFromJSON(os.path.join('data','questions_v2.json'))
     
     ### Entities from different database
-    if testing:
+    if devmode:
         populateEntitiesFromJSON(os.path.join('data', 'entities','sample.json'))
     else:
         populateEntitiesFromJSON(os.path.join('data', 'entities','DBPedia_architect.json'))
@@ -88,7 +88,7 @@ def createDatabase():
         populateEntitiesFromJSON(os.path.join('data', 'entities','ULAN.json'))
     
 #Artists
-    #Schema as per Schema.org (Coverted by Yi Ding from different museum schema)
+    #Schema as per Schema.org (Transformed by Yi Ding from different museum schema)
 def populateEntitiesFromJSON(filename):
     json_data=open(filename).read()
     data = json.loads(json_data)
@@ -380,7 +380,7 @@ def getStats(q):
             elif a["value"] == 3:
                 noNotSure = noNotSure + 1
 
-    #print 'Yes is {}, No is {}, Uncdecides is {} \n'.format(noNo,noYes,noNotSure)
+    #print 'Yes is {}, No is {}, Undecided is {} \n'.format(noNo,noYes,noNotSure)
     return {"Yes":noYes,"No":noNo,"Not Sure":noNotSure}
     
 #Answer
