@@ -248,20 +248,24 @@ def generateUniqueURI(uri1,uri2):
 # Populate default set of questions from csv file
 def populateQuestionsFromCSV(csvfname):
     with open(csvfname, 'rb') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=',')
-        for row in spamreader:
-            if len(row) == 2:
-                qe = {"status":1,
-                      "uniqueURI":generateUniqueURI(row[0],row[1]),
-                      "lastSeen": datetime.datetime.utcnow(),
-                      "tags":[dbC[dname]["tag"].find_one({'tagname':findTag(row[0])})['_id'],
-                              dbC[dname]["tag"].find_one({'tagname':findTag(row[1])})['_id'] ],
-                       "uri1":row[0],
-                       "uri2":row[1],
-                       "decision": [], #Should be updated in submit answer
-                       "dedupe ": {}
-                     }
-                dbC[dname]["question"].insert_one(qe)
+        lines = csvfile.readlines()
+        print(lines)
+        #spamreader = csv.reader(csvfile, delimiter=',')
+        for row in lines:
+            print(row)
+            #if len(row) == 2:
+            row = row.split(',')
+            qe = {"status":1,
+                  "uniqueURI":generateUniqueURI(row[0],row[1]),
+                  "lastSeen": datetime.datetime.utcnow(),
+                  "tags":[dbC[dname]["tag"].find_one({'tagname':findTag(row[0])})['_id'],
+                          dbC[dname]["tag"].find_one({'tagname':findTag(row[1])})['_id'] ],
+                   "uri1":row[0],
+                   "uri2":row[1],
+                   "decision": [], #Should be updated in submit answer
+                   "dedupe ": {}
+                 }
+            dbC[dname]["question"].insert_one(qe)
         
 def addOrUpdateQuestion(uri1,uri2,dedupe):
     uuri = generateUniqueURI(uri1,uri2)
