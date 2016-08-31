@@ -20,12 +20,6 @@ class OAuthSignIn(object):
 
     def get_callback_url(self):
         return server+"callback/facebook"
-        '''
-        if devmode:
-            return url_for('oauth_callback', provider=self.provider_name,_external=True)
-        else:
-            return 'http://52.37.251.245:80/callback/facebook'
-        '''
 
     @classmethod
     def get_provider(self, provider_name):
@@ -35,7 +29,6 @@ class OAuthSignIn(object):
                 provider = provider_class()
                 self.providers[provider.provider_name] = provider
         return self.providers[provider_name]
-
 
 class FacebookSignIn(OAuthSignIn):
     def __init__(self):
