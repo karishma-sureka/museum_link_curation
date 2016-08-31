@@ -3,5 +3,5 @@ devmode = True
 if devmode:
     server = "http://localhost:5000/"
 else:
-    server = "http://52.37.251.245"
+    server = "http://52.37.251.245/"
 app = Flask(__name__)

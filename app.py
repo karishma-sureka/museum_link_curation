@@ -39,7 +39,6 @@ else:
         }
     }
 
-
 @app.route('/')
 def index():
     return render_template('login_fb.html')
@@ -47,15 +46,13 @@ def index():
 @app.route('/login')
 def login():
     return render_template('login_fb.html')
-    
-# Uncomment below once userprofile page is available
-#@app.route('/user_profile')
-#def show_user_profile():
-    #return render_template('userprofile.html')
 
 @app.route('/curation')
 def show_curation():
-    return render_template('curation.html')
+    if current_user.is_authenticated:
+        return render_template('curation.html')
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/spec')
 def show_specs():

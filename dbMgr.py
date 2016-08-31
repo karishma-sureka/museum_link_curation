@@ -295,22 +295,25 @@ def addOrUpdateQuestion(uri1,uri2,dedupe):
         
 # Retrieve set of questions from database based on tags, lastseen, unanswered vs in progress
 def getQuestionsForUID(uid,count):
-    # Filter-1: Find tags associated with uid and retrieve set of questions
-    # Filter-2: Sort questions list based on status as InProgress or not started
-    # Filter-3: Sort questions list whose status is NotStarted on maximum lastSeen 
-    q1 = dbC[dname]["question"].find({"status":1}).sort([("lastSeen", DESCENDING)])
-    q2 = dbC[dname]["question"].find({"status":2}).sort([("status", DESCENDING)])
-    q = []
     
-    # Filter-4: Remove questions that are already served to this user based on uid as author in decision
+    # If User with uid not present return error
     userOid = dbC[dname]["curator"].find_one({'uid':uid})['_id']
     if userOid == None:
         print "User not found. \n"
         return None
-    
     #print "Found uid's objectID ",userOid
     
-    # Check every question whose status is in progress
+    #Filter-1: Find tags associated with uid and retrieve set of questions
+    #TODO
+    
+    # Filter-2:  Questions list whose status is NotStarted sorted as per lastSeen 
+    q1 = dbC[dname]["question"].find({"status":1}).sort([("lastSeen", DESCENDING)])
+    # Filter-3: Questions list whose status is inProgress sorted as per lastSeen
+    q2 = dbC[dname]["question"].find({"status":2}).sort([("lastSeen", DESCENDING)])
+    
+    q = []    
+    # Filter-4: Remove questions that are already served to this user based on author (uid) in decision
+    # Check every question whose status is in progress aka q2
     for question in q2:
         aids = question["decision"]
         
