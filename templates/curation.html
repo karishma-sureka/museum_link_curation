@@ -11,9 +11,11 @@
                 $("#zero").css("display", "none");
             });
 
+            var sv = '{{server}}'.concat("question?bulk=10&stats=True")
+            console.log("server address: ", sv)
             $.ajax({
                 type: "GET",
-                url: "http://localhost:5000/v1/question?bulk=10&stats=True",
+                url: sv,
                 success: function(data){
                     populate(data)
                 }
