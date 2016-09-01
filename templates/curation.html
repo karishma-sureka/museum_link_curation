@@ -4,29 +4,32 @@
     <link rel="stylesheet" type="text/css" href="static/css/style.css">
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script>
+    <script type="text/javascript">
         $(document).ready(function(){
 
            $(".close").click(function(){
                 $("#zero").css("display", "none");
             });
 
-            var sv = '{{server}}'.concat("question?bulk=10&stats=True")
-            console.log("server address: ", sv)
+            var sv = '{{server}}'.concat("v1/question?stats=true&count=10")
             $.ajax({
                 type: "GET",
                 url: sv,
                 success: function(data){
-                    populate(data)
+                    for(i = 0; i < data.length; i++)
+                    {
+                        console.log(data[i])
+                        populate(data[i],i)
+                    }
                 }
             });
 
         });
 
-        function populateExactMatch(data, i) {
-            console.log(data);
+        function populateExactMatch(data) {
+            //console.log(data);
             var content = document.getElementById("exactMatch");
-            console.log(content);
+            //console.log(content);
             var tr = "";
             var names = data.name;
             var values = data.value;
@@ -54,12 +57,12 @@
                 tr += "</tr>";
             }
             content.innerHTML = tr;
-            console.log(tr);
+            //console.log(tr);
         }
 
-        function populateNoMatch(data, i) {
+        function populateNoMatch(data) {
             var content = document.getElementById("noMatch");
-            console.log(content);
+            //console.log(content);
             var names = data.name;
             var lValues = data.lValue;
             var rValues = data.rValue;
@@ -100,20 +103,15 @@
                 tr += "</tr>";
             }
             content.innerHTML = tr;
-            console.log(tr);
+            //console.log(tr);
         }
 
-        function populate(data) {
-            console.log(data.length);
-            for(i = 0; i < data.length; i++) {
-                var cardholder = document.getElementById("cards");
-                cardholder.innerHTML = "<div id = '" + i + "'class='card transition block'> <div> <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button> <h2 id='name_header' class='transition'></h2> <p style = 'text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;'></p> </div> <div class='cta-container transition'> <div class='questionarea'> <div class='modal-body'> <table class='table table-hover'> <thead> <tr> <th>Values that Match</th> <th>SAAM, ULAN</th> </tr> </thead> <tbody class = 'exactMatch' id = 'exactMatch'> </tbody> </table> <table class='table table-hover'> <thead> <tr> <th>Values that do not match</th> <th>SAAM</th> <th>ULAN</th> </tr> </thead> <tbody id = 'noMatch'> </tbody> </table> </div> </div><div style='margin:auto;'><table class='form_style'><tr><td><form action='/user/answer/yes' method='POST' ><button name='yes'class='cta green-btn'>Yes</button></form></td><td><form action='/user/answer/no' method='POST' ><button name='yes'class='cta red-btn'>No</button></form></td> <td> <form action='/user/answer/notsure' method='POST' ><button name='yes'class='cta yellow-btn'>Notsure</button></form></td></tr> </table></div></div> </div>"
-                console.log(cardholder.innerHTML)
-            }
-            for(i = 0; i < data.length; i++) {
-                populateExactMatch(data[i].ExactMatch, i);
-                populateNoMatch(data[i].Unmatched, i);
-            }
+        function populate(data,divid) {
+            var cardholder = document.getElementById("cards");
+            cardholder.innerHTML = "<div id = '" + divid + "'class='card transition block'> <div> <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button> <h2 id='name_header' class='transition'></h2> <p style = 'text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;'></p> </div> <div class='cta-container transition'> <div class='questionarea'> <div class='modal-body'> <table class='table table-hover'> <thead> <tr> <th>Values that Match</th> <th>SAAM, ULAN</th> </tr> </thead> <tbody class = 'exactMatch' id = 'exactMatch'> </tbody> </table> <table class='table table-hover'> <thead> <tr> <th>Values that do not match</th> <th>SAAM</th> <th>ULAN</th> </tr> </thead> <tbody id = 'noMatch'> </tbody> </table> </div> </div><div style='margin:auto;'><table class='form_style'><tr><td><form action='/user/answer/yes' method='POST' ><button name='yes'class='cta green-btn'>Yes</button></form></td><td><form action='/user/answer/no' method='POST' ><button name='yes'class='cta red-btn'>No</button></form></td> <td> <form action='/user/answer/notsure' method='POST' ><button name='yes'class='cta yellow-btn'>Notsure</button></form></td></tr> </table></div></div> </div>"
+
+            populateExactMatch(data.ExactMatch);
+            populateNoMatch(data.Unmatched);
         }
 
 </script>

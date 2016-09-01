@@ -1,44 +1,13 @@
 import os, sys
 
 sys.dont_write_bytecode = True
-from flask_restful import Resource, Api
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user,current_user
+
 from oauth import OAuthSignIn
 from pprint import pprint
+
 from config import *
 from dbMgr import *
 from ui import *
-
-# Flask App instance
-#app = Flask(__name__)
-
-# restful, usrdb and login_manager instance
-api = Api(app)
-usrdb = SQLAlchemy(app)
-lm = LoginManager(app)
-
-# Flask configuration
-lm.login_view = 'index'
-lm.session_protection = 'strong'
-app.config['SECRET_KEY'] = 'top secret!'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-
-if devmode:
-    app.config['OAUTH_CREDENTIALS'] = {
-        'facebook': {
-            'id': '622058264638304',
-            'secret': '56bba85a0bef4cae8d07537701bbfe1f'
-        }
-    }
-else:
-    app.config['OAUTH_CREDENTIALS'] = {
-        'facebook': {
-            'id': '621200901380211',
-            'secret': '0afb04701e956a3cf74ac876560e7041'
-        }
-    }
-
 
 @app.route('/')
 def index():
@@ -47,15 +16,13 @@ def index():
 @app.route('/login')
 def login():
     return render_template('login_fb.html')
-    
-# Uncomment below once userprofile page is available
-#@app.route('/user_profile')
-#def show_user_profile():
-    #return render_template('userprofile.html')
 
 @app.route('/curation')
 def show_curation():
-    return render_template('curation.html')
+    if current_user.is_authenticated:
+        return render_template('curation.html')
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/spec')
 def show_specs():
@@ -195,6 +162,9 @@ class questMgr(Resource):
             return createQuestionsFromPairs(request.json)
     
     def get(self):
+        print "Input received: {} \n".format(request.get_json())    
+        print "Input received: {} \n".format(request.json)
+        print "Input received: {} \n".format(request.data)
         print "Input received: {} \n".format(request.args)
         
         if not current_user.is_authenticated:
@@ -213,7 +183,9 @@ class questMgr(Resource):
             else:
                 stats = False
 
-        return getQuestionsForUser(count,stats)
+        qs = getQuestionsForUser(count,stats)
+        #print qs
+        return qs
     
 # Handle RESTful API for submitting answer
 class ansMgr(Resource):
@@ -252,7 +224,6 @@ class ansMgr(Resource):
             return {'message':rsp["message"]},400
         else:
             return {'message':rsp["message"]}
-            
 
 # Rest API endpoints (V1)
 api.add_resource(userMgr, '/v1/user',endpoint='user')
@@ -292,7 +263,7 @@ def createQuestionsFromPairs(jsonData):
 
 def getQuestionsForUser(count,stats):
     uid = current_user.email
-    questions = getQuestionsForUID(uid,count)
+    questions = getQuestionsForUID(uid)
     if questions != None:
         output = []
         for question in questions:
@@ -325,10 +296,12 @@ def getQuestionsForUser(count,stats):
             t = getTags(question)
             if stats == True:
                 s = getStats(question)
-                output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"tags":t,"stats":s}]
+                output += [{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"tags":t,"stats":s}]
             else:
-                output = output+[{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"tags":t}]
-        return output
+                output += [{'qid': str(question['_id']),"ExactMatch":matches["ExactMatch"],"Unmatched":matches['Unmatched'],"tags":t}]
+            #print output
+            #print count
+        return output[:count]
     else:
         return {'status':"Couldn't retrieve questions mostly because user not found."}, 400
         
