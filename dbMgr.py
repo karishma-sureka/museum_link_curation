@@ -67,7 +67,7 @@ def createDatabase():
     
     ### Entities from different database
     if devmode:
-        populateEntitiesFromJSON(os.path.join('data', 'entities','sample.json'))
+        populateEntitiesFromJSON(os.path.join('data', 'sample.json'))
     else:
         populateEntitiesFromJSON(os.path.join('data', 'entities','DBPedia_architect.json'))
         populateEntitiesFromJSON(os.path.join('data', 'entities','DBPedia_artist.json'))
