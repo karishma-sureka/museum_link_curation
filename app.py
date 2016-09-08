@@ -17,12 +17,24 @@ def index():
 def login():
     return render_template('login_fb.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/curation')
 def show_curation():
     if current_user.is_authenticated:
         return render_template('curation.html')
     else:
         return redirect(url_for('index'))
+
+@app.route('/cards')
+def cards():
+    return render_template('cards.html')
+
+@app.route('/header')
+def header():
+    return render_template('header_search.html')
 
 @app.route('/spec')
 def show_specs():

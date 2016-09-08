@@ -1,0 +1,52 @@
+<div id ='' class='card transition block'>
+    <div>
+        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+            <span aria-hidden='true'>&times;
+            </span>
+        </button>
+        <h2 id='name_header' class='transition'/>
+        </div> <div class='cta-container transition'>
+        <div class='questionarea'>
+            <div class='modal-body'>
+                <table class='table table-hover'>
+                    <thead>
+                    <tr>
+                        <th>Values that Match</th>
+                        <th>SAAM, ULAN</th>
+                    </tr>
+                    </thead>
+                    <tbody class = 'exactMatch' id =''>
+                    </tbody>
+                </table>
+                <table class='table table-hover'>
+                    <thead>
+                    <tr>
+                        <th>Values that do not match</th>
+                        <th>SAAM</th>
+                        <th>ULAN</th>
+                    </tr>
+                    </thead>
+                    <tbody class = 'noMatch' id =''> </tbody>
+                </table>
+            </div>
+        </div>
+        <div style='margin:auto;'>
+            <table class='form_style'>
+                <tr>
+                    <td>
+                        <form action='/answer' method='POST' >
+                            <button name='yes'class='cta green-btn'>Yes</button>
+                        </form></td><td><form action='/user/answer/no' method='POST' >
+                    <button name='yes'class='cta red-btn'>No</button>
+                </form>
+                </td>
+                    <td>
+                        <form action='/user/answer/notsure' method='POST' >
+                            <button name='yes'class='cta yellow-btn'>Notsure</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+</div>
+</div>

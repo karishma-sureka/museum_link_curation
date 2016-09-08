@@ -1,143 +1,152 @@
-<head>
-    <title>Curation Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="static/css/cards.css">
-    <link rel="stylesheet" type="text/css" href="static/css/style.css">
-    <link href="static/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Curation Dashboard</title>
+        <link rel="stylesheet" type="text/css" href="static/css/cards.css">
+        <link rel="stylesheet" type="text/css" href="static/css/style.css">
+        <link href="static/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+        <style>
+            html, body, .filter-section, .cards{
+                margin: 0;
 
-           $(".close").click(function(){
-                $("#zero").css("display", "none");
-            });
+                padding: 0;
 
-            var sv = '{{server}}'.concat("v1/question?stats=true&count=10")
-            $.ajax({
-                type: "GET",
-                url: sv,
-                success: function(data){
-                    for(i = 0; i < data.length; i++)
-                    {
-                        console.log(data[i])
-                        populate(data[i],i)
-                    }
-                }
-            });
+                min-width: 100%;
+                width: 100%;
+                max-width: 100%;
 
-        });
-
-        function populateExactMatch(data) {
-            //console.log(data);
-            var content = document.getElementById("exactMatch");
-            //console.log(content);
-            var tr = "";
-            var names = data.name;
-            var values = data.value;
-            if(names.length == 0){
-                tr += "<td>None of the records matched</td>";
+                min-height: 100%;
+                height: 100%;
+                max-height: 100%;
             }
-            for(var index in names) {
-                tr += "<tr>"
-                nametrim = names[index].replace("schema:",'');
-                // handle diff cases for lValue and rValue name types
+        </style>
+        <script type="text/javascript">
+               $(".close").click(function(){
+                    $("#zero").css("display", "none");
+                });
 
-                if(names[index] == "schema:birthPlace") {
-                    tr += "<td>Name: " + values[index]['schema:name'] + "</td>";
-                }
-                 else if(nametrim == "URI"){
-                    tr += "<td><a target='_blank' href='" + values[index] + "'>" + lValues[index] + "</a></td>";
-                }
-                else {
-                    if(nametrim == "name"){
-                        var name_header = document.getElementById("name_header");
-                        name_header.innerHTML = values[index];
+                var sv = '{{server}}'.concat("v1/question?stats=true&count=10")
+                $.ajax({
+                    type: "GET",
+                    url: sv,
+                    success: function(data){
+                        console.log(data.length);
+                        for(i = 0; i < data.length; i++)
+                        {
+                            console.log(data[i]);
+                            populateCard(data[i],i);
+                        }
                     }
-                    tr += "<td>" + values[index] + "</td>";
+                });
+
+            function populateExactMatch(data, divid) {
+                var tr = "";
+                var names = data.name;
+                var values = data.value;
+                if(names.length == 0){
+                    tr += "<td>None of the records matched</td>";
                 }
-                tr += "</tr>";
-            }
-            content.innerHTML = tr;
-            //console.log(tr);
-        }
+                for(var index in names) {
+                    tr += "<tr>"
+                    nametrim = names[index].replace("schema:",'');
 
-        function populateNoMatch(data) {
-            var content = document.getElementById("noMatch");
-            //console.log(content);
-            var names = data.name;
-            var lValues = data.lValue;
-            var rValues = data.rValue;
-
-            // not sure which one is ulan and samm, switch lValue and rValue if need be
-            var tr = "";
-            for(var index in names) {
-
-                tr += "<tr>"
-                nametrim = names[index].replace("schema:",'');
-                tr += "<td>" + nametrim + "</td>";
-                // handle diff cases for lValue and rValue name types
-
-                if(names[index] == "schema:birthPlace") {
-                    tr += "<td>Name: " + lValues[index]['schema:name'] + "</td>";
-                    tr += "<td>Geo: Lat: " + rValues[index]['schema:geo']['schema:latitude'] + " Long: " + rValues[index]['schema:geo']['schema:longitude']+  "<br/>Name: " + rValues[index]['schema:name'] + "</td>";
-                }
-                 else if(nametrim == "URI"){
-                    tr += "<td><a target='_blank' href='" + lValues[index] + "'>" + lValues[index] + "</a></td>";
-                    tr += "<td><a target='_blank' href='" + rValues[index] + "'>" + rValues[index] + "</a></td>";
-                }
-                else {
-                // default case
-                    if(nametrim == "name"){
-                        var name_header = document.getElementById("name_header");
-                        name_header.innerHTML = lValues[index] + ", " + rValues[index];
+                    if(names[index] == "schema:birthPlace") {
+                        tr += "<td>Name: " + values[index]['schema:name'] + "</td>";
                     }
-
-                    if(lValues[index] == null)
-                        tr += "<td>" + "-" + "</td>";
-                    else
-                        tr += "<td>" + lValues[index] + "</td>";
-                    if(rValues[index] == null)
-                        tr += "<td>" + "-" + "</td>";
-                    else
-                        tr += "<td>" + rValues[index] + "</td>";
+                     else if(nametrim == "URI"){
+                        tr += "<td><a target='_blank' href='" + values[index] + "'>" + lValues[index] + "</a></td>";
+                    }
+                    else {
+                        if(nametrim == "name"){
+                            var name_header = document.getElementById("name_header");
+                            name_header.innerHTML = values[index];
+                        }
+                        tr += "<td>" + values[index] + "</td>";
+                    }
+                    tr += "</tr>";
                 }
-                tr += "</tr>";
+                document.getElementById("exactMatch" + divid).innerHTML = tr;
+                console.log(document.getElementById("cards"));
             }
-            content.innerHTML = tr;
-            //console.log(tr);
-        }
 
-        function populate(data,divid) {
-            var cardholder = document.getElementById("cards");
-            cardholder.innerHTML = "<div id = '" + divid + "'class='card transition block'> <div> <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button> <h2 id='name_header' class='transition'></h2> <p style = 'text-align: center; margin-left: 10%; margin-right: 10%; width: 80%; margin-top:10%;'></p> </div> <div class='cta-container transition'> <div class='questionarea'> <div class='modal-body'> <table class='table table-hover'> <thead> <tr> <th>Values that Match</th> <th>SAAM, ULAN</th> </tr> </thead> <tbody class = 'exactMatch' id = 'exactMatch'> </tbody> </table> <table class='table table-hover'> <thead> <tr> <th>Values that do not match</th> <th>SAAM</th> <th>ULAN</th> </tr> </thead> <tbody id = 'noMatch'> </tbody> </table> </div> </div><div style='margin:auto;'><table class='form_style'><tr><td><form action='/user/answer/yes' method='POST' ><button name='yes'class='cta green-btn'>Yes</button></form></td><td><form action='/user/answer/no' method='POST' ><button name='yes'class='cta red-btn'>No</button></form></td> <td> <form action='/user/answer/notsure' method='POST' ><button name='yes'class='cta yellow-btn'>Notsure</button></form></td></tr> </table></div></div> </div>"
+            function populateNoMatch(data, divid) {
+                var names = data.name;
+                var lValues = data.lValue;
+                var rValues = data.rValue;
 
-            populateExactMatch(data.ExactMatch);
-            populateNoMatch(data.Unmatched);
-        }
+                var tr = "";
+                for(var index in names) {
 
-</script>
+                    tr += "<tr>"
+                    nametrim = names[index].replace("schema:",'');
+                    tr += "<td>" + nametrim + "</td>";
+
+                    if(names[index] == "schema:birthPlace") {
+                        tr += "<td>Name: " + lValues[index]['schema:name'] + "</td>";
+                        tr += "<td>Geo: Lat: " + rValues[index]['schema:geo']['schema:latitude'] + " Long: " + rValues[index]['schema:geo']['schema:longitude']+  "<br/>Name: " + rValues[index]['schema:name'] + "</td>";
+                    }
+                     else if(nametrim == "URI"){
+                        tr += "<td><a target='_blank' href='" + lValues[index] + "'>" + lValues[index] + "</a></td>";
+                        tr += "<td><a target='_blank' href='" + rValues[index] + "'>" + rValues[index] + "</a></td>";
+                    }
+                    else {
+                        if(nametrim == "name"){
+                            var name_header = $('#name_header')
+                            name_header.innerHTML = lValues[index] + ", " + rValues[index];
+                        }
+
+                        if(lValues[index] == null)
+                            tr += "<td>" + "-" + "</td>";
+                        else
+                            tr += "<td>" + lValues[index] + "</td>";
+                        if(rValues[index] == null)
+                            tr += "<td>" + "-" + "</td>";
+                        else
+                            tr += "<td>" + rValues[index] + "</td>";
+                    }
+                    tr += "</tr>";
+                }
+                document.getElementById("noMatch" + divid).innerHTML = tr;
+                console.log(document.getElementById("cards"));
+            }
+
+            function populateCard(data,divid) {
+                $.ajax({
+                    method: "GET",
+                    url: "/cards",
+                    success: function (card) {
+                        content = card;
+                        searchTxt = "<div id ='";
+                        pos = content.search(searchTxt);
+                        content = content.slice(0, pos + searchTxt.length) + divid + content.slice(pos + searchTxt.length);
+                        searchTxt = "<tbody class = 'exactMatch' id ='";
+                        pos = content.search(searchTxt);
+                        console.log(pos)
+                        content = content.slice(0, pos + searchTxt.length) + "exactMatch" + divid + content.slice(pos + searchTxt.length);
+                        searchTxt = "<tbody class = 'noMatch' id ='";
+                        pos = content.search(searchTxt);
+                        console.log(pos)
+                        document.getElementById("cards").innerHTML += content.slice(0, pos + searchTxt.length) + "noMatch" + divid + content.slice(pos + searchTxt.length);
+                        console.log(document.getElementById("cards"));
+                        console.log("Data parsed:")
+                        console.log(data);
+                    },
+                    complete: function () {
+                        populateExactMatch(data.ExactMatch, divid);
+                        populateNoMatch(data.Unmatched, divid);
+                    }
+                });
+            }
+       </script>
+
 </head>
-<div class="page">
-<div class="filter-section">
-  <div class="search-bar">
-    <div class="input-group">
-      <input type="text" class="form-control" placeholder="Search for...">
-      <span class="input-group-btn">
-        <button class="btn btn-default" type="button">Go!</button>
-      </span>
-    </div>
-  </div>
-    <div class="filter-btn">
-    <button class="btn btn-primary " type="button" style="background-color: #9d9d9d; border-color:  #9d9d9d;">
-  Unanswered <span class="badge">4</span>
-    </button>
+    <body>
+        <div class="page" id="page">
+        <div class="filter-section">
+             <div id = "header">{% include 'header_search.html' %}</div>
         </div>
-        <div class="museum-btn">
-        <button class="btn btn-primary" type="button" style="background-color: #9d9d9d; border-color:  #9d9d9d;">
-  Smithsonian American Art Museum Data <span class="badge">38</span>
-    </button>
-    </div>
-</div>
-<div class="cards" id = "cards">
-
-</div>
-</div>
+        <div class="cards" id = "cards"></div>
+        </div>
+    </body>
+</html>

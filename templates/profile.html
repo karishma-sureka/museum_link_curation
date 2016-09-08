@@ -1,7 +1,53 @@
-<!doctype html>
-<title>Hello from Flask</title>
-{% if name %}
-  <h1>Hello {{ name }}!</h1>
-{% else %}
-  <h1>Hello World!</h1>
-{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Link Curation Login</title>
+    <meta name="generator" content="Bootply" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+    <!--[if lt IE 9]>
+        <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="static/css/style.css">
+</head>
+<body>
+<div id="loginModal" class="modal show" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+  <div id="login-container"  class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h1 class="text-center">Create account</h1>
+      </div>
+      <div class="modal-body">
+          <form class="form col-md-12 center-block" >
+              <fieldset class="form-group">
+                <label for="user-name">Name</label>
+                <input type="email" class="form-control" id="user-name" placeholder="Enter your full name">
+              </fieldset>
+              <fieldset class="form-group">
+                <label for="input-email">Email address</label>
+                <input type="email" class="form-control" id="input-email" placeholder="Enter your email address">
+              </fieldset>
+              <!--
+              <fieldset class="form-group">
+                <label for="input-password">Password</label>
+                <input type="password" class="form-control" id="input-password" placeholder="Password">
+              </fieldset>
+              <fieldset class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm-password" placeholder="Password">
+              </fieldset> -->
+            <div class="form-group">
+              <button id = "register-btn" class="btn btn-primary btn-lg btn-block" onclick="return register_user()">Create your Curator account</button>
+            </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+  </div>
+  </div>
+</div>
+</body>
+</html>
