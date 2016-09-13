@@ -58,6 +58,10 @@ def show_user_profile():
 def redirectUser():
     return redirect(url_for("user"))
 
+@app.route('/support')
+def support():
+    return render_template('support.html')
+
 @app.route('/question')
 def redirectQuestion():
     return redirect(url_for("question"))
