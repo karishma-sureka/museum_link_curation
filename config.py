@@ -3,6 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user,current
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient, ReturnDocument, ASCENDING, DESCENDING
+from unidecode import unidecode
 
 devmode = True
 
@@ -11,6 +12,8 @@ if devmode:
     dbC = MongoClient('localhost', 27017)
 else:
     server = "http://52.37.251.245/"
+    #server = "http://ec2-52-37-251-245.us-west-2.compute.amazonaws.com/"
+    #server = "http://linkcuration.ddns.net/"
     dbC = MongoClient('localhost', 12345)
 
 # Flask configuration
@@ -26,9 +29,8 @@ lm.session_protection = 'strong'
 app.config['SECRET_KEY'] = 'top secret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
-confedenceLevel = 2
-contrastLevel = 2
-dname = "entityCuration"
+confidenceLevel = 2
+dname = "linkVerification"
 
 if devmode:
     app.config['OAUTH_CREDENTIALS'] = {

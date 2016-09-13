@@ -339,7 +339,27 @@ def getQuestionsForUID(uid):
             return_document=ReturnDocument.AFTER) ]
             
     return q_new
-        
+
+# Basic Pre processing to help matching obvious values
+def preProcess(value):
+    
+    #print "Pre processing : "+str(value)+" with type : "+str(type(value))
+    
+    if type(value) == str or type(value) == int or type(value) == unicode:
+        # First convert int to strings
+        if type(value) == int:
+            value = str(value)
+
+        # Remove leading and trailing whitespace 
+        value = value.strip()
+
+        # Covert to ASCII just for the comparison
+        value = unidecode(value)
+    
+    #print "Pre processed : "+str(value)+" with type : "+str(type(value))
+
+    return value
+
 def getMatches(left,right):
     exactMatch = {"name":[],"value":[]}
     unmatched = {"name":["URI"],"lValue":[left["@id"]],"rValue":[right["@id"]]}
@@ -348,9 +368,12 @@ def getMatches(left,right):
     
     for field in fields:
         if field in left and field in right:
-            if left[field] == right[field]:
+            # Basic Pre processing to help matching obvious values
+            lVal = preProcess(left[field])
+            rVal = preProcess(right[field])
+            if lVal == rVal:
                 exactMatch["name"] = exactMatch["name"]+[field]
-                exactMatch["value"] = exactMatch["value"]+[left[field]]
+                exactMatch["value"] = exactMatch["value"]+[lVal]
             else:
                 unmatched["name"] = unmatched["name"]+[field]
                 unmatched["lValue"] = unmatched["lValue"]+[left[field]]
@@ -440,16 +463,14 @@ def submitAnswer(qid, answer, uid):
         
         # Update status of the question based on different answers
         if noYes !=0 or noNo != 0:
-            if noYes - noNo >= confedenceLevel:
-                if noNo >= contrastLevel:
-                    q['status'] = 3 # Update to, Disagreement 
-                else:
-                    q['status'] = 4 # Update to, Completed 
+            if noYes == confidenceLevel:
+                q['status'] = 4 # Update to, Completed 
+            elif noNo == confidenceLevel:
+                q['status'] = 3 # Update to, Disagreement 
             else:
-                if noNo >= contrastLevel:
-                    q['status'] = 3 # Update to, Disagreement 
-                else:
-                    q['status'] = 2 # Update to, InProgress
+                q['status'] = 2 # Update to, InProgress
+        #else:
+            #q['status'] = 1 # Update to, NotStarted (Implicit)
     
         #update database entry of question with new status and decision
         q =  dbC[dname]["question"].find_one_and_update(
