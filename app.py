@@ -65,10 +65,10 @@ def support():
 @app.route('/question')
 def redirectQuestion():
     return redirect(url_for("question"))
-    
-@app.route('/answer')
-def redirectAnswer():
-    return redirect(url_for("answer"))
+
+@app.route('/answer/<option>')
+def redirectAnswer(option):
+    return redirect(url_for("answer")) + option
 
 # Handle RESTful API for user services like  Registration/Login/Logout/Statistics
 class userMgr(Resource):

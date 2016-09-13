@@ -34,19 +34,25 @@
             <table class='form_style'>
                 <tr>
                     <td>
-                        <form action='/answer' method='POST' >
+                        <form action='/answer?option=0' method='POST' >
                             <button name='yes'class='cta green-btn'>Yes</button>
-                        </form></td><td><form action='/user/answer/no' method='POST' >
-                    <button name='yes'class='cta red-btn'>No</button>
-                </form>
-                </td>
+                        </form>
+                    </td>
                     <td>
-                        <form action='/user/answer/notsure' method='POST' >
-                            <button name='yes'class='cta yellow-btn'>Notsure</button>
+                        <form action='/answer?option=1' method='POST' >
+                            <button name='no'class='cta red-btn'>No</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action='/answer?option=2' method='POST' >
+                            <button name='notsure'class='cta yellow-btn'>Notsure</button>
                         </form>
                     </td>
                 </tr>
             </table>
+        </div>
+        <div id = 'footer' style="display:none">
+
         </div>
 </div>
 </div>

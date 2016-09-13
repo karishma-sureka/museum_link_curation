@@ -12,29 +12,35 @@
 	<link rel="stylesheet" href="static/css/assets/demo.css">
 	<link rel="stylesheet" href="static/css/assets/header-search.css">
 	<link href='http://fonts.googleapis.com/css?family=Cookie' rel='stylesheet' type='text/css'>
+    <script>
+        function setSelected()
+        {
+            var str = document.URL.match(/.*\/(.*?)$/);
+            str = str[1]
+            if(str == ""){
+                str = "logout"
+        }
+            document.getElementById(str).className += "selected"
+        }
+    </script>
 
 </head>
 
-<body>
+<body onload="setSelected()">
 
 <header class="header-search">
 
 	<div class="header-limiter">
 
-		<h1><a href="#">Link Verification<span>    Information Integration Group        </span></a></h1>
+		<h1><a href="#">Link Verification<span>      Information Integration Group        </span></a></h1>
 
 		<nav style="float:right;">
-            <a href="/about">About</a>
-			<a href="/curation" class="selected">Home</a>
-			<a href="/profile">Profile</a>
-			<a href="{{ url_for('logout') }}">Logout</a>
-            <a href="/support">Support</a>
+            <a href="/about" id = "about">About</a>
+			<a href="/curation" id = "curation">Home</a>
+			<a href="/profile" id = "profile">Profile</a>
+			<a href="{{ url_for('logout') }}" id = "logout">Logout</a>
+            <a href="/support" id = "support">Support</a>
 		</nav>
-
-		<!-- <form method="get" action="#">
-			<input type="search" placeholder="Search!" name="search">
-		</form> -->
-
 	</div>
 
 </header>

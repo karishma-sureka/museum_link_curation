@@ -197,3 +197,11 @@ p {
 .form_style{
     margin:auto;
 }
+
+.right_align{
+    float:right;
+}
+
+.leftt_align{
+    float:left;
+}

@@ -80,7 +80,7 @@
 
                     tr += "<tr>"
                     nametrim = names[index].replace("schema:",'');
-                    tr += "<td>" + nametrim + "</td>";
+                    tr += "<td class='right_align'>" + nametrim + "</td>";
 
                     if(names[index] == "schema:birthPlace") {
                         tr += "<td>Name: " + lValues[index]['schema:name'] + "</td>";
@@ -127,10 +127,14 @@
                         searchTxt = "<tbody class = 'noMatch' id ='";
                         pos = content.search(searchTxt);
                         console.log(pos)
-                        document.getElementById("cards").innerHTML += content.slice(0, pos + searchTxt.length) + "noMatch" + divid + content.slice(pos + searchTxt.length);
+                        content = content.slice(0, pos + searchTxt.length) + "noMatch" + divid + content.slice(pos + searchTxt.length);
+                        searchTxt = "<div id = 'footer'";
+                        pos = content.search(searchTxt);
+                        document.getElementById("cards").innerHTML += content.slice(0, pos + searchTxt.length) + data['qid'] + content.slice(pos + searchTxt.length);
                         console.log(document.getElementById("cards"));
                         console.log("Data parsed:")
                         console.log(data);
+
                     },
                     complete: function () {
                         populateExactMatch(data.ExactMatch, divid);
